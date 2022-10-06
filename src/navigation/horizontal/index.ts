@@ -21,8 +21,6 @@ const navigation = (): HorizontalNavItemsType => [
     title: 'Access Control',
     icon: ShieldOutline,
     path: '/acl',
-    action: 'read',
-    subject: 'acl-page'
   }
 ]
 

@@ -23,9 +23,6 @@ import AccountOutline from 'mdi-material-ui/AccountOutline'
 import MessageOutline from 'mdi-material-ui/MessageOutline'
 import HelpCircleOutline from 'mdi-material-ui/HelpCircleOutline'
 
-// ** Context
-import { useAuth } from 'src/hooks/useAuth'
-
 // ** Type Imports
 import { Settings } from 'src/@core/context/settingsContext'
 
@@ -51,7 +48,6 @@ const UserDropdown = (props: Props) => {
 
   // ** Hooks
   const router = useRouter()
-  const { logout } = useAuth()
 
   // ** Vars
   const { direction } = settings

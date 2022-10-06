@@ -37,7 +37,6 @@ import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** Hooks
-import { useAuth } from 'src/hooks/useAuth'
 import useBgColor from 'src/@core/hooks/useBgColor'
 import { useSettings } from 'src/@core/hooks/useSettings'
 
@@ -119,7 +118,6 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false)
 
   // ** Hooks
-  const auth = useAuth()
   const theme = useTheme()
   const bgClasses = useBgColor()
   const { settings } = useSettings()
@@ -390,7 +388,5 @@ const LoginPage = () => {
 }
 
 LoginPage.getLayout = (page: ReactNode) => <BlankLayout>{page}</BlankLayout>
-
-LoginPage.guestGuard = true
 
 export default LoginPage
