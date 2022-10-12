@@ -12,15 +12,6 @@ import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 // ** Third Party Components
 import toast from "react-hot-toast";
 
-// ** Types Imports
-import { ThemeColor } from "src/@core/layouts/types";
-
-// ** Utils Import
-import { getInitials } from "src/@core/utils/get-initials";
-
-// ** Data Import
-import { rows } from "src/@fake-db/table/static-data";
-
 // ** Amplify Imports
 import { API, graphqlOperation } from 'aws-amplify';
 import { listStorages } from 'src/graphql/queries';
