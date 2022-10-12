@@ -1,5 +1,7 @@
-node_modules
-.next
+node_modules/
+.next/
+.env
+src/ui-components/
 
 #amplify-do-not-edit-begin
 amplify/\#current-cloud-backend

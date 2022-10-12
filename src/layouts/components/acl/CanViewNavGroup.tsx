@@ -1,15 +1,15 @@
-import { ReactNode } from 'react'
-import { NavGroup } from 'src/@core/layouts/types'
+import { ReactNode } from "react";
+import { NavGroup } from "src/@core/layouts/types";
 
 interface Props {
-  navGroup?: NavGroup
-  children: ReactNode
+  navGroup?: NavGroup;
+  children: ReactNode;
 }
 
 const CanViewNavGroup = (props: Props) => {
-  const { children } = props
+  const { children } = props;
 
-  return <>{children}</>
-}
+  return <>{children}</>;
+};
 
-export default CanViewNavGroup
+export default CanViewNavGroup;

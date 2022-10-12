@@ -1,15 +1,15 @@
-import { ReactNode } from 'react'
-import { NavLink } from 'src/@core/layouts/types'
+import { ReactNode } from "react";
+import { NavLink } from "src/@core/layouts/types";
 
 interface Props {
-  navLink?: NavLink
-  children: ReactNode
+  navLink?: NavLink;
+  children: ReactNode;
 }
 
 const CanViewNavLink = (props: Props) => {
-  const { children } = props
+  const { children } = props;
 
-  return <>{children}</>
-}
+  return <>{children}</>;
+};
 
-export default CanViewNavLink
+export default CanViewNavLink;

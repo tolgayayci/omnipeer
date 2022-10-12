@@ -1,38 +1,37 @@
 // ** React Imports
-import { useEffect } from 'react'
+import { useEffect } from "react";
 
 // ** Next Imports
-import { useRouter } from 'next/router'
+import { useRouter } from "next/router";
 
 // ** Spinner Import
-import Spinner from 'src/@core/components/spinner'
+import Spinner from "src/@core/components/spinner";
 
 /**
  *  Set Home URL based on User Roles
  */
 export const getHomeRoute = () => {
-  return '/home'
-}
+  return "/home";
+};
 
 const Home = () => {
   // ** Hooks
-  const router = useRouter()
+  const router = useRouter();
 
   useEffect(() => {
     if (!router.isReady) {
-      return
+      return;
     }
 
-    
-    const homeRoute = getHomeRoute()
+    const homeRoute = getHomeRoute();
 
     // Redirect user to Home URL
-    router.replace(homeRoute)
-    
+    router.replace(homeRoute);
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, []);
 
-  return <Spinner />
-}
+  return <Spinner />;
+};
 
-export default Home
+export default Home;

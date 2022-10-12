@@ -1,15 +1,15 @@
-import { ReactNode } from 'react'
-import { NavSectionTitle } from 'src/@core/layouts/types'
+import { ReactNode } from "react";
+import { NavSectionTitle } from "src/@core/layouts/types";
 
 interface Props {
-  children: ReactNode
-  navTitle?: NavSectionTitle
+  children: ReactNode;
+  navTitle?: NavSectionTitle;
 }
 
 const CanViewNavSectionTitle = (props: Props) => {
-  const { children } = props
+  const { children } = props;
 
-  return <>{children}</>
-}
+  return <>{children}</>;
+};
 
-export default CanViewNavSectionTitle
+export default CanViewNavSectionTitle;
