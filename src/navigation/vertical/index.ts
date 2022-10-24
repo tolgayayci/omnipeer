@@ -33,16 +33,9 @@ const navigation = (): VerticalNavItemsType => {
       sectionTitle: "File Transfer",
     },
     {
-      title: "Transfer File",
-      icon: FolderSwap,
-    },
-    {
-      title: "Find Peers",
+      title: "P2P",
       icon: TextBoxSearchOutline,
-    },
-    {
-      title: "Reports",
-      icon: ChartBar,
+      path: "/transfer/",
     },
   ];
 };

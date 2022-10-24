@@ -13,8 +13,8 @@ import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import toast from "react-hot-toast";
 
 // ** Amplify Imports
-import { API, graphqlOperation } from 'aws-amplify';
-import { listStorages } from 'src/graphql/queries';
+import { API, graphqlOperation } from "aws-amplify";
+import { listStorages } from "src/graphql/queries";
 
 import FallbackSpinner from "src/@core/components/spinner";
 
@@ -33,16 +33,19 @@ const StorageTable = () => {
   useEffect(() => {
     const fetchData = async () => {
       // TODO: set the nexttoken logic for pagination
-      const allStorageObjects = await API.graphql({ query: listStorages, variables: {limit: pageSize} });
+      const allStorageObjects = await API.graphql({
+        query: listStorages,
+        variables: { limit: pageSize },
+      });
 
-      return allStorageObjects
-    }
+      return allStorageObjects;
+    };
 
     fetchData().then((result) => {
-      console.log('fetched data');
+      console.log("fetched data");
       // @ts-ignore
-      setStorageData(result.data.listStorages.items)
-    })
+      setStorageData(result.data.listStorages.items);
+    });
   }, [pageSize]);
 
   const columns: GridColDef[] = [
@@ -112,9 +115,7 @@ const StorageTable = () => {
 
   return (
     <Card>
-      <CardHeader
-        title="Uploaded Objects"
-      />
+      <CardHeader title="Uploaded Objects" />
       <DataGrid
         autoHeight
         rows={storageData}
@@ -122,7 +123,7 @@ const StorageTable = () => {
         pageSize={pageSize}
         disableSelectionOnClick
         rowsPerPageOptions={[10, 20, 50, 100]}
-        getRowId={row => row.cid}
+        getRowId={(row) => row.cid}
         onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
       />
     </Card>

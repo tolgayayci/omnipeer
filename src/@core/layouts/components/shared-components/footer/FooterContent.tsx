@@ -24,9 +24,7 @@ const FooterContent = () => {
           ❤️
         </Box>
         {` by `}
-        <Link target="_blank">
-          Omnipeer
-        </Link>
+        <Link target="_blank">Omnipeer</Link>
       </Typography>
       {hidden ? null : (
         <Box
@@ -37,12 +35,8 @@ const FooterContent = () => {
             "& :not(:last-child)": { mr: 4 },
           }}
         >
-          <Link target="_blank">
-            Documentation
-          </Link>
-          <Link target="_blank">
-            Support
-          </Link>
+          <Link target="_blank">Documentation</Link>
+          <Link target="_blank">Support</Link>
         </Box>
       )}
     </Box>

@@ -22,7 +22,7 @@ const CardStatsVertical = (props: CardStatsVerticalProps) => {
   const TrendIcon = trend === "positive" ? ChevronUp : ChevronDown;
 
   return (
-    <Card>
+    <Card sx={{ border: "2px solid rgb(255,255,255,0.7)" }}>
       <CardContent sx={{ display: "flex", flexDirection: "column" }}>
         <Box
           sx={{
