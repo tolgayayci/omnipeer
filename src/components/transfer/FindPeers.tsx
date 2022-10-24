@@ -17,7 +17,6 @@ import type { PeerId } from "@libp2p/interface-peer-id";
 
 // Custom Component Imports
 import FallbackSpinner from "src/@core/components/spinner";
-import PeerTable from "./PeerTable";
 
 // MUI Imports
 import Grid from "@mui/material/Grid";
