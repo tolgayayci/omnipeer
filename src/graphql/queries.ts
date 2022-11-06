@@ -43,3 +43,50 @@ export const listStorages = /* GraphQL */ `
     }
   }
 `;
+export const getStream = /* GraphQL */ `
+  query GetStream($ownerPeerId: String!) {
+    getStream(ownerPeerId: $ownerPeerId) {
+      ownerPeerId
+      remotePeerId
+      name
+      type
+      size
+      status
+      statusDetails
+      createdAt
+      updatedAt
+      owner
+    }
+  }
+`;
+export const listStreams = /* GraphQL */ `
+  query ListStreams(
+    $ownerPeerId: String
+    $filter: ModelStreamFilterInput
+    $limit: Int
+    $nextToken: String
+    $sortDirection: ModelSortDirection
+  ) {
+    listStreams(
+      ownerPeerId: $ownerPeerId
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      sortDirection: $sortDirection
+    ) {
+      items {
+        ownerPeerId
+        remotePeerId
+        name
+        type
+        size
+        status
+        statusDetails
+        createdAt
+        updatedAt
+        owner
+      }
+      nextToken
+    }
+  }
+`;

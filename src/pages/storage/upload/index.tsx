@@ -7,7 +7,6 @@ import AlertTitle from "@mui/material/AlertTitle";
 
 // ** Custom Components Imports
 import PageHeader from "src/@core/components/page-header";
-import CardSnippet from "src/@core/components/card-snippet";
 import UploadFile from "src/components/storage/upload/UploadFile";
 import StorageTable from "src/components/storage/upload/StorageTable";
 

@@ -50,3 +50,60 @@ export const deleteStorage = /* GraphQL */ `
     }
   }
 `;
+export const createStream = /* GraphQL */ `
+  mutation CreateStream(
+    $input: CreateStreamInput!
+    $condition: ModelStreamConditionInput
+  ) {
+    createStream(input: $input, condition: $condition) {
+      ownerPeerId
+      remotePeerId
+      name
+      type
+      size
+      status
+      statusDetails
+      createdAt
+      updatedAt
+      owner
+    }
+  }
+`;
+export const updateStream = /* GraphQL */ `
+  mutation UpdateStream(
+    $input: UpdateStreamInput!
+    $condition: ModelStreamConditionInput
+  ) {
+    updateStream(input: $input, condition: $condition) {
+      ownerPeerId
+      remotePeerId
+      name
+      type
+      size
+      status
+      statusDetails
+      createdAt
+      updatedAt
+      owner
+    }
+  }
+`;
+export const deleteStream = /* GraphQL */ `
+  mutation DeleteStream(
+    $input: DeleteStreamInput!
+    $condition: ModelStreamConditionInput
+  ) {
+    deleteStream(input: $input, condition: $condition) {
+      ownerPeerId
+      remotePeerId
+      name
+      type
+      size
+      status
+      statusDetails
+      createdAt
+      updatedAt
+      owner
+    }
+  }
+`;

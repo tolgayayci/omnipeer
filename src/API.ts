@@ -91,6 +91,67 @@ export type DeleteStorageInput = {
   cid: string;
 };
 
+export type CreateStreamInput = {
+  ownerPeerId: string;
+  remotePeerId: string;
+  name: string;
+  type: string;
+  size: number;
+  status: StorageType;
+  statusDetails: string;
+};
+
+export enum StorageType {
+  pending = "pending",
+  done = "done",
+  cancelled = "cancelled",
+}
+
+export type ModelStreamConditionInput = {
+  remotePeerId?: ModelStringInput | null;
+  name?: ModelStringInput | null;
+  type?: ModelStringInput | null;
+  size?: ModelIntInput | null;
+  status?: ModelStorageTypeInput | null;
+  statusDetails?: ModelStringInput | null;
+  and?: Array<ModelStreamConditionInput | null> | null;
+  or?: Array<ModelStreamConditionInput | null> | null;
+  not?: ModelStreamConditionInput | null;
+};
+
+export type ModelStorageTypeInput = {
+  eq?: StorageType | null;
+  ne?: StorageType | null;
+};
+
+export type Stream = {
+  __typename: "Stream";
+  ownerPeerId: string;
+  remotePeerId: string;
+  name: string;
+  type: string;
+  size: number;
+  status: StorageType;
+  statusDetails: string;
+  createdAt: string;
+  updatedAt: string;
+  owner?: string | null;
+};
+
+export type UpdateStreamInput = {
+  ownerPeerId: string;
+  remotePeerId?: string | null;
+  name?: string | null;
+  type?: string | null;
+  size?: number | null;
+  status?: StorageType | null;
+  statusDetails?: string | null;
+};
+
+export type DeleteStreamInput = {
+  ownerPeerId: string;
+};
+
 export type ModelStorageFilterInput = {
   cid?: ModelStringInput | null;
   name?: ModelStringInput | null;
@@ -109,6 +170,25 @@ export enum ModelSortDirection {
 export type ModelStorageConnection = {
   __typename: "ModelStorageConnection";
   items: Array<Storage | null>;
+  nextToken?: string | null;
+};
+
+export type ModelStreamFilterInput = {
+  ownerPeerId?: ModelStringInput | null;
+  remotePeerId?: ModelStringInput | null;
+  name?: ModelStringInput | null;
+  type?: ModelStringInput | null;
+  size?: ModelIntInput | null;
+  status?: ModelStorageTypeInput | null;
+  statusDetails?: ModelStringInput | null;
+  and?: Array<ModelStreamFilterInput | null> | null;
+  or?: Array<ModelStreamFilterInput | null> | null;
+  not?: ModelStreamFilterInput | null;
+};
+
+export type ModelStreamConnection = {
+  __typename: "ModelStreamConnection";
+  items: Array<Stream | null>;
   nextToken?: string | null;
 };
 
@@ -166,6 +246,69 @@ export type DeleteStorageMutation = {
   } | null;
 };
 
+export type CreateStreamMutationVariables = {
+  input: CreateStreamInput;
+  condition?: ModelStreamConditionInput | null;
+};
+
+export type CreateStreamMutation = {
+  createStream?: {
+    __typename: "Stream";
+    ownerPeerId: string;
+    remotePeerId: string;
+    name: string;
+    type: string;
+    size: number;
+    status: StorageType;
+    statusDetails: string;
+    createdAt: string;
+    updatedAt: string;
+    owner?: string | null;
+  } | null;
+};
+
+export type UpdateStreamMutationVariables = {
+  input: UpdateStreamInput;
+  condition?: ModelStreamConditionInput | null;
+};
+
+export type UpdateStreamMutation = {
+  updateStream?: {
+    __typename: "Stream";
+    ownerPeerId: string;
+    remotePeerId: string;
+    name: string;
+    type: string;
+    size: number;
+    status: StorageType;
+    statusDetails: string;
+    createdAt: string;
+    updatedAt: string;
+    owner?: string | null;
+  } | null;
+};
+
+export type DeleteStreamMutationVariables = {
+  input: DeleteStreamInput;
+  condition?: ModelStreamConditionInput | null;
+};
+
+export type DeleteStreamMutation = {
+  deleteStream?: {
+    __typename: "Stream";
+    ownerPeerId: string;
+    remotePeerId: string;
+    name: string;
+    type: string;
+    size: number;
+    status: StorageType;
+    statusDetails: string;
+    createdAt: string;
+    updatedAt: string;
+    owner?: string | null;
+  } | null;
+};
+
 export type GetStorageQueryVariables = {
   cid: string;
 };
@@ -200,6 +343,54 @@ export type ListStoragesQuery = {
       name: string;
       type: string;
       size: number;
+      createdAt: string;
+      updatedAt: string;
+      owner?: string | null;
+    } | null>;
+    nextToken?: string | null;
+  } | null;
+};
+
+export type GetStreamQueryVariables = {
+  ownerPeerId: string;
+};
+
+export type GetStreamQuery = {
+  getStream?: {
+    __typename: "Stream";
+    ownerPeerId: string;
+    remotePeerId: string;
+    name: string;
+    type: string;
+    size: number;
+    status: StorageType;
+    statusDetails: string;
+    createdAt: string;
+    updatedAt: string;
+    owner?: string | null;
+  } | null;
+};
+
+export type ListStreamsQueryVariables = {
+  ownerPeerId?: string | null;
+  filter?: ModelStreamFilterInput | null;
+  limit?: number | null;
+  nextToken?: string | null;
+  sortDirection?: ModelSortDirection | null;
+};
+
+export type ListStreamsQuery = {
+  listStreams?: {
+    __typename: "ModelStreamConnection";
+    items: Array<{
+      __typename: "Stream";
+      ownerPeerId: string;
+      remotePeerId: string;
+      name: string;
+      type: string;
+      size: number;
+      status: StorageType;
+      statusDetails: string;
       createdAt: string;
       updatedAt: string;
       owner?: string | null;
@@ -253,6 +444,66 @@ export type OnDeleteStorageSubscription = {
     name: string;
     type: string;
     size: number;
+    createdAt: string;
+    updatedAt: string;
+    owner?: string | null;
+  } | null;
+};
+
+export type OnCreateStreamSubscriptionVariables = {
+  owner?: string | null;
+};
+
+export type OnCreateStreamSubscription = {
+  onCreateStream?: {
+    __typename: "Stream";
+    ownerPeerId: string;
+    remotePeerId: string;
+    name: string;
+    type: string;
+    size: number;
+    status: StorageType;
+    statusDetails: string;
+    createdAt: string;
+    updatedAt: string;
+    owner?: string | null;
+  } | null;
+};
+
+export type OnUpdateStreamSubscriptionVariables = {
+  owner?: string | null;
+};
+
+export type OnUpdateStreamSubscription = {
+  onUpdateStream?: {
+    __typename: "Stream";
+    ownerPeerId: string;
+    remotePeerId: string;
+    name: string;
+    type: string;
+    size: number;
+    status: StorageType;
+    statusDetails: string;
+    createdAt: string;
+    updatedAt: string;
+    owner?: string | null;
+  } | null;
+};
+
+export type OnDeleteStreamSubscriptionVariables = {
+  owner?: string | null;
+};
+
+export type OnDeleteStreamSubscription = {
+  onDeleteStream?: {
+    __typename: "Stream";
+    ownerPeerId: string;
+    remotePeerId: string;
+    name: string;
+    type: string;
+    size: number;
+    status: StorageType;
+    statusDetails: string;
     createdAt: string;
     updatedAt: string;
     owner?: string | null;

@@ -1,4 +1,7 @@
 import * as React from "react";
+import { useState, useEffect } from "react";
+
+// Mui Import
 import Box from "@mui/material/Box";
 import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
@@ -7,13 +10,30 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
+
+// Custom Component Imports
 import FindPeers from "./FindPeers";
+import UploadFile from "./UploadFile";
+import TransferFile from "./TransferFile";
+import FallbackSpinner from "src/@core/components/spinner";
+import toast from "react-hot-toast";
+
+// ** Styled Component
+import DropzoneWrapper from "src/@core/styles/libs/react-dropzone";
+
+// libp2p imports
+import { pipe } from "it-pipe";
+import { toString as uint8ArrayToString } from "uint8arrays/to-string";
+
+import { useGlobalContext } from "src/pages/_app";
 
 const steps = ["Find Peers", "Select File", "Start Transfer"];
 
 export default function StepperWrapper() {
-  const [activeStep, setActiveStep] = React.useState(0);
-  const [skipped, setSkipped] = React.useState(new Set<number>());
+  const [activeStep, setActiveStep] = useState(0);
+  const [skipped, setSkipped] = useState(new Set<number>());
+
+  const { node, remotePeerIds, remotePeerIdAsString, files, setFiles } = useGlobalContext();
 
   const isStepOptional = (step: number) => {
     return step === 3;
@@ -30,8 +50,78 @@ export default function StepperWrapper() {
       newSkipped.delete(activeStep);
     }
 
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    setSkipped(newSkipped);
+    switch (activeStep) {
+      case 0:
+        if (remotePeerIdAsString === "") {
+          toast.error("Please select a peer to connect to or enter manually!", {
+            position: "top-right",
+            style: {
+              border: "1px solid #713200",
+              padding: "16px",
+              color: "#713200",
+              background: "#ffffff",
+            },
+            iconTheme: {
+              primary: "#713200",
+              secondary: "#FFFAEE",
+            },
+          });
+        } else if (node?.peerId.toString() === remotePeerIdAsString) {
+          toast.error("You cannot transfer file to yourself!", {
+            position: "top-right",
+            style: {
+              border: "1px solid #713200",
+              padding: "16px",
+              color: "#713200",
+              background: "#ffffff",
+            },
+            iconTheme: {
+              primary: "#713200",
+              secondary: "#FFFAEE",
+            },
+          });
+        } else {
+          const result = remotePeerIds.find(
+            (item) => item.toString() === remotePeerIdAsString
+          );
+
+          if (result === undefined) {
+            toast.error("Peer id is wrong or peer not connected!", {
+              position: "top-right",
+              style: {
+                border: "1px solid #713200",
+                padding: "16px",
+                color: "#713200",
+                background: "#ffffff",
+              },
+              iconTheme: {
+                primary: "#713200",
+                secondary: "#FFFAEE",
+              },
+            });
+          } else {
+            setActiveStep((prevActiveStep) => prevActiveStep + 1);
+          }
+        }
+      case 1:
+        if (files.length === 0) {
+          toast.error("Please select a file to transfer!", {
+            position: "top-right",
+            style: {
+              border: "1px solid #713200",
+              padding: "16px",
+              color: "#713200",
+              background: "#ffffff",
+            },
+            iconTheme: {
+              primary: "#713200",
+              secondary: "#FFFAEE",
+            },
+          });
+        } else {
+          setActiveStep((prevActiveStep) => prevActiveStep + 1);
+        }
+    }
   };
 
   const handleBack = () => {
@@ -57,69 +147,215 @@ export default function StepperWrapper() {
     setActiveStep(0);
   };
 
-  return (
-    <Card>
-      <CardContent>
-        <Box sx={{ width: "100%" }}>
-          <Stepper activeStep={activeStep}>
-            {steps.map((label, index) => {
-              const stepProps: { completed?: boolean } = {};
-              const labelProps: {
-                optional?: React.ReactNode;
-              } = {};
-              if (isStepOptional(index)) {
-                labelProps.optional = (
-                  <Typography variant="caption">Optional</Typography>
-                );
-              }
-              if (isStepSkipped(index)) {
-                stepProps.completed = false;
-              }
-              return (
-                <Step key={label} {...stepProps}>
-                  <StepLabel {...labelProps}>{label}</StepLabel>
-                </Step>
-              );
-            })}
-          </Stepper>
-          {activeStep === steps.length ? (
-            <React.Fragment>
-              <Typography sx={{ mt: 2, mb: 1 }}>
-                All steps completed - you&apos;re finished
-              </Typography>
-              <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
-                <Box sx={{ flex: "1 1 auto" }} />
-                <Button onClick={handleReset}>Reset</Button>
-              </Box>
-            </React.Fragment>
-          ) : (
-            <React.Fragment>
-              <CardContent>
-                <FindPeers />
-              </CardContent>
-              <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
-                <Button
-                  color="inherit"
-                  disabled={activeStep === 0}
-                  onClick={handleBack}
-                  sx={{ mr: 1 }}
-                >
-                  Back
-                </Button>
-                <Box sx={{ flex: "1 1 auto" }} />
-                {isStepOptional(activeStep) && (
-                  <Button color="inherit" onClick={handleSkip} sx={{ mr: 1 }}>
-                    Skip
-                  </Button>
-                )}
-                <Button onClick={handleNext}>
-                  {activeStep === steps.length - 1 ? "Finish" : "Next"}
-                </Button>
-              </Box>
-            </React.Fragment>
-          )}
-        </Box>
-      </CardContent>
-    </Card>
-  );
+  switch (activeStep) {
+    case 0:
+      return (
+        <Card>
+          <CardContent>
+            <Box sx={{ width: "100%" }}>
+              <Stepper activeStep={activeStep} alternativeLabel>
+                {steps.map((label, index) => {
+                  const stepProps: { completed?: boolean } = {};
+                  const labelProps: {
+                    optional?: React.ReactNode;
+                  } = {};
+                  if (isStepOptional(index)) {
+                    labelProps.optional = (
+                      <Typography variant="caption">Optional</Typography>
+                    );
+                  }
+                  if (isStepSkipped(index)) {
+                    stepProps.completed = false;
+                  }
+                  return (
+                    <Step key={label} {...stepProps}>
+                      <StepLabel {...labelProps}>{label}</StepLabel>
+                    </Step>
+                  );
+                })}
+              </Stepper>
+              {activeStep === steps.length ? (
+                <React.Fragment>
+                  <Typography sx={{ mt: 2, mb: 1 }}>
+                    All steps completed - you&apos;re finished
+                  </Typography>
+                  <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+                    <Box sx={{ flex: "1 1 auto" }} />
+                    <Button onClick={handleReset}>Reset</Button>
+                  </Box>
+                </React.Fragment>
+              ) : (
+                <React.Fragment>
+                  <CardContent>
+                    {node ? <FindPeers /> : <FallbackSpinner />}
+                  </CardContent>
+
+                  <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+                    <Button
+                      color="inherit"
+                      disabled={activeStep === 0}
+                      onClick={handleBack}
+                      sx={{ mr: 1 }}
+                    >
+                      Back
+                    </Button>
+                    <Box sx={{ flex: "1 1 auto" }} />
+                    {isStepOptional(activeStep) && (
+                      <Button
+                        color="inherit"
+                        onClick={handleSkip}
+                        sx={{ mr: 1 }}
+                      >
+                        Skip
+                      </Button>
+                    )}
+                    <Button onClick={handleNext}>
+                      {activeStep === steps.length - 1 ? "Finish" : "Next"}
+                    </Button>
+                  </Box>
+                </React.Fragment>
+              )}
+            </Box>
+          </CardContent>
+        </Card>
+      );
+    case 1:
+      return (
+        <Card>
+          <CardContent>
+            <Box sx={{ width: "100%" }}>
+              <Stepper activeStep={activeStep} alternativeLabel>
+                {steps.map((label, index) => {
+                  const stepProps: { completed?: boolean } = {};
+                  const labelProps: {
+                    optional?: React.ReactNode;
+                  } = {};
+                  if (isStepOptional(index)) {
+                    labelProps.optional = (
+                      <Typography variant="caption">Optional</Typography>
+                    );
+                  }
+                  if (isStepSkipped(index)) {
+                    stepProps.completed = false;
+                  }
+                  return (
+                    <Step key={label} {...stepProps}>
+                      <StepLabel {...labelProps}>{label}</StepLabel>
+                    </Step>
+                  );
+                })}
+              </Stepper>
+              {activeStep === steps.length ? (
+                <React.Fragment>
+                  <Typography sx={{ mt: 2, mb: 1 }}>
+                    All steps completed - you&apos;re finished
+                  </Typography>
+                  <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+                    <Box sx={{ flex: "1 1 auto" }} />
+                    <Button onClick={handleReset}>Reset</Button>
+                  </Box>
+                </React.Fragment>
+              ) : (
+                <React.Fragment>
+                  <CardContent>
+                    {node ? (
+                      <DropzoneWrapper>
+                        <UploadFile />
+                      </DropzoneWrapper>
+                    ) : (
+                      <FallbackSpinner />
+                    )}
+                  </CardContent>
+
+                  <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+                    <Button color="inherit" onClick={handleBack} sx={{ mr: 1 }}>
+                      Back
+                    </Button>
+                    <Box sx={{ flex: "1 1 auto" }} />
+                    {isStepOptional(activeStep) && (
+                      <Button
+                        color="inherit"
+                        onClick={handleSkip}
+                        sx={{ mr: 1 }}
+                      >
+                        Skip
+                      </Button>
+                    )}
+                    <Button onClick={handleNext}>
+                      {activeStep === steps.length - 1 ? "Finish" : "Next"}
+                    </Button>
+                  </Box>
+                </React.Fragment>
+              )}
+            </Box>
+          </CardContent>
+        </Card>
+      );
+    case 2:
+      return (
+        <Card>
+          <CardContent>
+            <Box sx={{ width: "100%" }}>
+              <Stepper activeStep={activeStep} alternativeLabel>
+                {steps.map((label, index) => {
+                  const stepProps: { completed?: boolean } = {};
+                  const labelProps: {
+                    optional?: React.ReactNode;
+                  } = {};
+                  if (isStepOptional(index)) {
+                    labelProps.optional = (
+                      <Typography variant="caption">Optional</Typography>
+                    );
+                  }
+                  if (isStepSkipped(index)) {
+                    stepProps.completed = false;
+                  }
+                  return (
+                    <Step key={label} {...stepProps}>
+                      <StepLabel {...labelProps}>{label}</StepLabel>
+                    </Step>
+                  );
+                })}
+              </Stepper>
+              {activeStep === steps.length ? (
+                <React.Fragment>
+                  <Typography sx={{ mt: 2, mb: 1 }}>
+                    All steps completed - you&apos;re finished
+                  </Typography>
+                  <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+                    <Box sx={{ flex: "1 1 auto" }} />
+                    <Button onClick={handleReset}>Reset</Button>
+                  </Box>
+                </React.Fragment>
+              ) : (
+                <React.Fragment>
+                  <CardContent>
+                    {node ? <TransferFile /> : <FallbackSpinner />}
+                  </CardContent>
+
+                  <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+                    <Button color="inherit" onClick={handleBack} sx={{ mr: 1 }}>
+                      Back
+                    </Button>
+                    <Box sx={{ flex: "1 1 auto" }} />
+                    {isStepOptional(activeStep) && (
+                      <Button
+                        color="inherit"
+                        onClick={handleSkip}
+                        sx={{ mr: 1 }}
+                      >
+                        Skip
+                      </Button>
+                    )}
+                    <Button onClick={handleNext}>
+                      {activeStep === steps.length - 1 ? "Finish" : "Next"}
+                    </Button>
+                  </Box>
+                </React.Fragment>
+              )}
+            </Box>
+          </CardContent>
+        </Card>
+      );
+  }
 }

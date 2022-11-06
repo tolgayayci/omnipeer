@@ -6,6 +6,7 @@ import Typography from "@mui/material/Typography";
 // ** Custom Components Imports
 import PageHeader from "src/@core/components/page-header";
 import StepperWrapper from "src/components/transfer/Stepper";
+import CardDetail from "src/views/transfer/Card";
 
 const TransferFile = () => {
   return (
@@ -23,6 +24,7 @@ const TransferFile = () => {
         }
       />
       <Grid item xs={12}>
+        {/* @ts-ignore */}
         <StepperWrapper />
       </Grid>
     </Grid>

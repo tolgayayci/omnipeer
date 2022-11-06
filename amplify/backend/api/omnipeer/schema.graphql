@@ -9,4 +9,19 @@ type Storage @model @auth(rules: [{ allow: owner, operations: [create, read] }])
   size: Int!
 }
 
- 
+enum StorageType {
+  pending
+  done
+  cancelled
+}
+
+type Stream @model @auth(rules: [{ allow: owner, operations: [create, read, update] }]){
+  ownerPeerId: String! @primaryKey
+  remotePeerId: String!
+  name: String!
+  type: String!
+  size: Int!
+  status: StorageType!
+  statusDetails: AWSJSON!
+}
+

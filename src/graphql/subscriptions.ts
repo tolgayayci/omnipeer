@@ -41,3 +41,51 @@ export const onDeleteStorage = /* GraphQL */ `
     }
   }
 `;
+export const onCreateStream = /* GraphQL */ `
+  subscription OnCreateStream($owner: String) {
+    onCreateStream(owner: $owner) {
+      ownerPeerId
+      remotePeerId
+      name
+      type
+      size
+      status
+      statusDetails
+      createdAt
+      updatedAt
+      owner
+    }
+  }
+`;
+export const onUpdateStream = /* GraphQL */ `
+  subscription OnUpdateStream($owner: String) {
+    onUpdateStream(owner: $owner) {
+      ownerPeerId
+      remotePeerId
+      name
+      type
+      size
+      status
+      statusDetails
+      createdAt
+      updatedAt
+      owner
+    }
+  }
+`;
+export const onDeleteStream = /* GraphQL */ `
+  subscription OnDeleteStream($owner: String) {
+    onDeleteStream(owner: $owner) {
+      ownerPeerId
+      remotePeerId
+      name
+      type
+      size
+      status
+      statusDetails
+      createdAt
+      updatedAt
+      owner
+    }
+  }
+`;

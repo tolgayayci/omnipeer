@@ -1,10 +1,9 @@
 // ** Icon imports
 import HomeOutline from "mdi-material-ui/HomeOutline";
-import ShieldOutline from "mdi-material-ui/ShieldOutline";
 import CloudUpload from "mdi-material-ui/CloudUpload";
-import TextBoxSearchOutline from "mdi-material-ui/TextBoxSearchOutline";
-import ChartBar from "mdi-material-ui/ChartBar";
-import FolderSwap from "mdi-material-ui/FolderSwap";
+import Brush from "mdi-material-ui/Brush";
+import AccountSwitch from "mdi-material-ui/AccountSwitch";
+import ChatOutline from "mdi-material-ui/ChatOutline";
 
 // ** Type import
 import { VerticalNavItemsType } from "src/@core/layouts/types";
@@ -25,17 +24,25 @@ const navigation = (): VerticalNavItemsType => {
       path: "/storage/upload",
     },
     {
-      title: "Explorer",
-      icon: TextBoxSearchOutline,
-      path: "/storage/explorer",
+      title: "NFT",
+      icon: Brush,
+      path: "/storage/nft",
     },
     {
       sectionTitle: "File Transfer",
     },
     {
       title: "P2P",
-      icon: TextBoxSearchOutline,
+      icon: AccountSwitch,
       path: "/transfer/",
+    },
+    {
+      sectionTitle: "CHAT",
+    },
+    {
+      title: "Messenger",
+      icon: ChatOutline,
+      path: "/chat/",
     },
   ];
 };
