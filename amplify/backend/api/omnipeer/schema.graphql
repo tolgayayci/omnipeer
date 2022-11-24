@@ -25,3 +25,23 @@ type Stream @model @auth(rules: [{ allow: owner, operations: [create, read, upda
   statusDetails: AWSJSON!
 }
 
+type User @model @auth(rules: [{ allow: owner, operations: [create, read, update] }]){
+  owner: String! @primaryKey
+  email: AWSEmail!
+  peerId: String
+  fullName: String
+  about: String
+  role: String
+  nickname: String
+  avatar: AWSURL
+  contacts: [AWSJSON]
+  chats: [Chat] @hasMany(indexName: "byOwner", fields: ["owner"])
+}
+
+type Chat @model @auth(rules: [{ allow: owner, operations: [create, read, update] }]){
+  id: ID! @primaryKey
+  userId: String! @index(name: "byOwner")
+  unseenMsgs: Int!
+  chat: [AWSJSON]
+}
+

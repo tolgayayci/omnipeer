@@ -278,14 +278,14 @@ const SidebarLeft = (props: ChatSidebarLeftType) => {
                       color: activeCondition ? "common.white" : "text.disabled",
                     }}
                   >
-                    <>
+                    {/* <>
                       {lastMessage
                         ? formatDateToMonthShort(
                             lastMessage.time as string,
                             true
                           )
                         : new Date()}
-                    </>
+                    </> */}
                   </Typography>
                   {chat.chat.unseenMsgs && chat.chat.unseenMsgs > 0 ? (
                     <Chip
@@ -310,7 +310,7 @@ const SidebarLeft = (props: ChatSidebarLeftType) => {
   };
 
   const renderContacts = () => {
-    if (store && store.chats && store.chats.length) {
+    if (store && store.contacts) {
       if (query.length && !filteredContacts.length) {
         return (
           <ListItem>

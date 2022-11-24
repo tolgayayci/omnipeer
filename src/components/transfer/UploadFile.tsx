@@ -1,7 +1,5 @@
 // ** React Imports
-import { Fragment, useEffect } from "react";
-
-import { useGlobalContext } from "src/pages/_app";
+import { Fragment, useEffect, useState } from "react";
 
 // ** MUI Imports
 import Box from "@mui/material/Box";
@@ -18,6 +16,9 @@ import FileDocumentOutline from "mdi-material-ui/FileDocumentOutline";
 // ** Third Party Components
 import toast from "react-hot-toast";
 import { useDropzone } from "react-dropzone";
+
+import { useAppDispatch, useAppSelector } from "src/store/hooks";
+import { setFiles } from "src/store/apps/node";
 
 interface FileProp {
   name: string;
@@ -48,14 +49,19 @@ const HeadingTypography = styled(Typography)<TypographyProps>(({ theme }) => ({
 
 const UploadFile = () => {
   // ** State
-  const { files, setFiles } = useGlobalContext();
+  const [files, setFiles] = useState<File[]>([]);
+
+  const dispatch = useAppDispatch();
 
   // ** Hooks
   const { getRootProps, getInputProps } = useDropzone({
     maxFiles: 1,
     maxSize: 100000000,
     onDrop: (acceptedFiles: File[]) => {
-      setFiles(acceptedFiles.map((file: File) => Object.assign(file)));
+      dispatch((node) =>
+        setFiles(acceptedFiles.map((file: File) => Object.assign(file)))
+      );
+      //setFiles(acceptedFiles.map((file: File) => Object.assign(file)));
     },
     onDropRejected: () => {
       toast.error("You can only upload 1 file & maximum size of 2 MB.", {

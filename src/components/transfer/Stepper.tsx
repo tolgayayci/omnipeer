@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 // Mui Import
 import Box from "@mui/material/Box";
@@ -21,11 +21,7 @@ import toast from "react-hot-toast";
 // ** Styled Component
 import DropzoneWrapper from "src/@core/styles/libs/react-dropzone";
 
-// libp2p imports
-import { pipe } from "it-pipe";
-import { toString as uint8ArrayToString } from "uint8arrays/to-string";
-
-import { useGlobalContext } from "src/pages/_app";
+import { useAppSelector } from "src/store/hooks";
 
 const steps = ["Find Peers", "Select File", "Start Transfer"];
 
@@ -33,7 +29,12 @@ export default function StepperWrapper() {
   const [activeStep, setActiveStep] = useState(0);
   const [skipped, setSkipped] = useState(new Set<number>());
 
-  const { node, remotePeerIds, remotePeerIdAsString, files, setFiles } = useGlobalContext();
+  const node = useAppSelector((state) => state.node.node);
+  const remotePeerIds = useAppSelector((state) => state.node.remotePeerIds);
+  const remotePeerIdAsString = useAppSelector(
+    (state) => state.node.remotePeerIdAsString
+  );
+  const files = useAppSelector((state) => state.node.files);
 
   const isStepOptional = (step: number) => {
     return step === 3;
@@ -81,7 +82,7 @@ export default function StepperWrapper() {
             },
           });
         } else {
-          const result = remotePeerIds.find(
+          const result = remotePeerIds?.find(
             (item) => item.toString() === remotePeerIdAsString
           );
 
@@ -104,7 +105,7 @@ export default function StepperWrapper() {
           }
         }
       case 1:
-        if (files.length === 0) {
+        if (files?.length === 0) {
           toast.error("Please select a file to transfer!", {
             position: "top-right",
             style: {

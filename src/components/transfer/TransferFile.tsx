@@ -8,16 +8,21 @@ import Grid from "@mui/material/Grid";
 
 import toast from "react-hot-toast";
 
-import { useGlobalContext } from "src/pages/_app";
 import { Button } from "@mui/material";
 
+import { useAppSelector } from "src/store/hooks";
+
 const TransferFile = () => {
-  const { node, remotePeerIds, remotePeerIdAsString, files } =
-    useGlobalContext();
+  const node = useAppSelector((state) => state.node.node);
+  const remotePeerIds = useAppSelector((state) => state.node.remotePeerIds);
+  const remotePeerIdAsString = useAppSelector(
+    (state) => state.node.remotePeerIdAsString
+  );
+  const files = useAppSelector((state) => state.node.files);
 
   async function transferFile() {
-    console.log(remotePeerIdAsString)
-    const result = remotePeerIds.find(
+    console.log(remotePeerIdAsString);
+    const result = remotePeerIds?.find(
       (item) => item.toString() === remotePeerIdAsString
     );
 
@@ -46,6 +51,7 @@ const TransferFile = () => {
         pipe(
           [
             uint8ArrayFromString(
+              //@ts-ignore
               files[0].name + " " + files[0].size + " " + files[0].type
             ),
           ],

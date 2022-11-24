@@ -1,80 +1,92 @@
 // ** Redux Imports
-import { Dispatch } from "redux";
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { RootState } from "src/store";
 
-// ** Axios Imports
-import axios from "axios";
+// ** Amplify Imports
+import { API, Auth, graphqlOperation } from "aws-amplify";
+import { createUser, updateUser } from "src/graphql/mutations";
+import { getUser } from "src/graphql/queries";
 
-interface DataParams {
-  q: string;
-  role: string;
-  status: string;
-  currentPlan: string;
-}
+// ** Types
+import type { User, UpdateUserInput } from "src/API";
 
-interface Redux {
-  getState: any;
-  dispatch: Dispatch<any>;
-}
+export const getUserInfo = createAsyncThunk("user/getUser", async () => {
+  const user = await Auth.currentAuthenticatedUser();
 
-// ** Fetch Users
-export const fetchData = createAsyncThunk(
-  "appUsers/fetchData",
-  async (params: DataParams) => {
-    const response = await axios.get("/apps/users/list", {
-      params,
-    });
+  const result = await API.graphql(
+    graphqlOperation(getUser, { owner: user.attributes.sub })
+  );
+  // @ts-ignore
+  if (!result.data.getUser) {
+    const newUser = {
+      owner: user.attributes.sub,
+      email: user.attributes.email,
+    };
 
-    return response.data;
+    await API.graphql(graphqlOperation(createUser, { input: newUser }));
+  } else {
+    //@ts-ignore
+    return result.data.getUser;
   }
+});
+
+export const updateUserInfo = createAsyncThunk(
+  "user/updateUser",
+  // TODO: Add type for user and queries
+  async (peerId: string) => {
+    const user = await Auth.currentAuthenticatedUser();
+
+    const updatedUser = {
+      owner: user.attributes.sub,
+      email: user.attributes.email,
+      peerId: peerId,
+    };
+
+    await API.graphql(graphqlOperation(updateUser, { input: updatedUser }));
+  }
+  
 );
 
-// ** Add User
-export const addUser = createAsyncThunk(
-  "appUsers/addUser",
-  async (
-    data: { [key: string]: number | string },
-    { getState, dispatch }: Redux
-  ) => {
-    const response = await axios.post("/apps/users/add-user", {
-      data,
-    });
-    dispatch(fetchData(getState().user.params));
+const initialState: User = {
+  __typename: "User",
+  owner: "",
+  email: "",
+  fullName: "",
+  peerId: "",
+  nickname: "",
+  contacts: null,
+  createdAt: "",
+  updatedAt: "",
+};
 
-    return response.data;
-  }
-);
-
-// ** Delete User
-export const deleteUser = createAsyncThunk(
-  "appUsers/deleteUser",
-  async (id: number | string, { getState, dispatch }: Redux) => {
-    const response = await axios.delete("/apps/users/delete", {
-      data: id,
-    });
-    dispatch(fetchData(getState().user.params));
-
-    return response.data;
-  }
-);
-
-export const appUsersSlice = createSlice({
-  name: "appUsers",
-  initialState: {
-    data: [],
-    total: 1,
-    params: {},
-    allData: [],
+export const userSlice = createSlice({
+  name: "user",
+  initialState,
+  reducers: {
+    setUser: (state, action) => {
+      state.owner = action.payload;
+    },
   },
-  reducers: {},
   extraReducers: (builder) => {
-    builder.addCase(fetchData.fulfilled, (state, action) => {
-      state.data = action.payload.users;
-      state.total = action.payload.total;
-      state.params = action.payload.params;
-      state.allData = action.payload.allData;
-    });
+    builder.addCase(
+      getUserInfo.fulfilled,
+      (state, action: PayloadAction<User>) => {
+        state.__typename = action.payload.__typename;
+        state.owner = action.payload.owner;
+        state.email = action.payload.email;
+        state.fullName = action.payload.fullName;
+        state.peerId = action.payload.peerId;
+        state.nickname = action.payload.nickname;
+        state.contacts = action.payload.contacts;
+        state.createdAt = action.payload.createdAt;
+        state.updatedAt = action.payload.updatedAt;
+      }
+    );
   },
 });
 
-export default appUsersSlice.reducer;
+export const { setUser } = userSlice.actions;
+
+export const user = (state: RootState) => state.user;
+
+export default userSlice.reducer;

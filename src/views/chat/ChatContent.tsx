@@ -207,19 +207,6 @@ const ChatContent = (props: ChatContentType) => {
               </Box>
 
               <Box sx={{ display: "flex", alignItems: "center" }}>
-                {mdAbove ? (
-                  <Fragment>
-                    <IconButton size="small" sx={{ color: "text.secondary" }}>
-                      <PhoneOutline />
-                    </IconButton>
-                    <IconButton size="small" sx={{ color: "text.secondary" }}>
-                      <VideoOutline sx={{ fontSize: "1.5rem" }} />
-                    </IconButton>
-                    <IconButton size="small" sx={{ color: "text.secondary" }}>
-                      <Magnify />
-                    </IconButton>
-                  </Fragment>
-                ) : null}
                 <IconButton
                   size="small"
                   onClick={handleClick}
@@ -259,17 +246,6 @@ const ChatContent = (props: ChatContentType) => {
 
             <SendMsgForm store={store} dispatch={dispatch} sendMsg={sendMsg} />
 
-            <UserProfileRight
-              store={store}
-              hidden={hidden}
-              statusObj={statusObj}
-              getInitials={getInitials}
-              sidebarWidth={sidebarWidth}
-              userProfileRightOpen={userProfileRightOpen}
-              handleUserProfileRightSidebarToggle={
-                handleUserProfileRightSidebarToggle
-              }
-            />
           </Box>
         );
       }

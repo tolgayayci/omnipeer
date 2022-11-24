@@ -61,7 +61,8 @@ const ChatLog = (props: ChatLogType) => {
   const formattedChatData = () => {
     let chatLog: MessageType[] | [] = [];
     if (data.chat) {
-      chatLog = data.chat.chat;
+      // @ts-ignore
+      chatLog = JSON.parse(data.chat.chat);
     }
 
     const formattedChatLog: FormattedChatsType[] = [];

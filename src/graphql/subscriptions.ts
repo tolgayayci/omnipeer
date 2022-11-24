@@ -89,3 +89,129 @@ export const onDeleteStream = /* GraphQL */ `
     }
   }
 `;
+export const onCreateUser = /* GraphQL */ `
+  subscription OnCreateUser($owner: String) {
+    onCreateUser(owner: $owner) {
+      owner
+      email
+      peerId
+      fullName
+      about
+      role
+      nickname
+      avatar
+      contacts
+      chats {
+        items {
+          id
+          userId
+          unseenMsgs
+          chat
+          createdAt
+          updatedAt
+          owner
+        }
+        nextToken
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onUpdateUser = /* GraphQL */ `
+  subscription OnUpdateUser($owner: String) {
+    onUpdateUser(owner: $owner) {
+      owner
+      email
+      peerId
+      fullName
+      about
+      role
+      nickname
+      avatar
+      contacts
+      chats {
+        items {
+          id
+          userId
+          unseenMsgs
+          chat
+          createdAt
+          updatedAt
+          owner
+        }
+        nextToken
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onDeleteUser = /* GraphQL */ `
+  subscription OnDeleteUser($owner: String) {
+    onDeleteUser(owner: $owner) {
+      owner
+      email
+      peerId
+      fullName
+      about
+      role
+      nickname
+      avatar
+      contacts
+      chats {
+        items {
+          id
+          userId
+          unseenMsgs
+          chat
+          createdAt
+          updatedAt
+          owner
+        }
+        nextToken
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onCreateChat = /* GraphQL */ `
+  subscription OnCreateChat($owner: String) {
+    onCreateChat(owner: $owner) {
+      id
+      userId
+      unseenMsgs
+      chat
+      createdAt
+      updatedAt
+      owner
+    }
+  }
+`;
+export const onUpdateChat = /* GraphQL */ `
+  subscription OnUpdateChat($owner: String) {
+    onUpdateChat(owner: $owner) {
+      id
+      userId
+      unseenMsgs
+      chat
+      createdAt
+      updatedAt
+      owner
+    }
+  }
+`;
+export const onDeleteChat = /* GraphQL */ `
+  subscription OnDeleteChat($owner: String) {
+    onDeleteChat(owner: $owner) {
+      id
+      userId
+      unseenMsgs
+      chat
+      createdAt
+      updatedAt
+      owner
+    }
+  }
+`;

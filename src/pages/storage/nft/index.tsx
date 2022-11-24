@@ -5,8 +5,18 @@ import Link from "@mui/material/Link";
 
 // ** Custom Components Imports
 import PageHeader from "src/@core/components/page-header";
+import { useEffect } from "react";
+import { useAppDispatch } from "src/store/hooks";
+import { createNode } from "src/store/apps/node";
 
 const NftStorage = () => {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    console.log("NFT Storage");
+    //dispatch(createNode());
+  }, []);
+
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>

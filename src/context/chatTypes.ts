@@ -17,11 +17,6 @@ export type ProfileUserType = {
   about: string;
   avatar: string;
   fullName: string;
-  status: StatusType;
-  settings: {
-    isNotificationsOn: boolean;
-    isTwoStepAuthVerificationEnabled: boolean;
-  };
 };
 
 export type MsgFeedbackType = {

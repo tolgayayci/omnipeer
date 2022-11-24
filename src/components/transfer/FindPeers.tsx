@@ -21,7 +21,6 @@ import { styled } from "@mui/material/styles";
 
 // ** Custom Components Imports
 import CustomChip from "src/@core/components/mui/chip";
-import { useGlobalContext } from "src/pages/_app";
 
 // ** Icons Imports
 import Web from "mdi-material-ui/Web";
@@ -29,6 +28,9 @@ import Server from "mdi-material-ui/Server";
 import AccountCircleOutline from "mdi-material-ui/AccountCircleOutline";
 import Plus from "mdi-material-ui/Plus";
 import Minus from "mdi-material-ui/Minus";
+
+import { useAppDispatch, useAppSelector } from "src/store/hooks";
+import { setRemotePeerIds, setRemotePeerIdAsString } from "src/store/apps/node";
 
 // Styled component for Accordion component
 const Accordion = styled(MuiAccordion)<AccordionProps>(({ theme }) => ({
@@ -88,35 +90,35 @@ const AccordionDetails = styled(MuiAccordionDetails)<AccordionDetailsProps>(
 const FindPeers = () => {
   const [expanded, setExpanded] = useState<string | false>("panel1");
 
-  const {
-    node,
-    remotePeerIds,
-    setRemotePeerIds,
-    files,
-    remotePeerIdAsString,
-    setRemotePeerIdAsString,
-  } = useGlobalContext();
+  const node = useAppSelector((state) => state.node.node);
+  const remotePeerIds = useAppSelector((state) => state.node.remotePeerIds);
+  const remotePeerIdAsString = useAppSelector(
+    (state) => state.node.remotePeerIdAsString
+  );
+
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    console.log(files);
-  }, [files]);
+    console.log(remotePeerIds);
+  }, []);
 
   const handleChange =
     (panel: string) => (event: SyntheticEvent, isExpanded: boolean) => {
       setExpanded(isExpanded ? panel : false);
     };
 
-  node?.connectionManager.addEventListener("peer:connect", (evt) => {
-    const connection = evt.detail;
-    console.log(`Connected to ${connection.remotePeer.toString()}`);
-    node?.peerStore.addressBook.set(connection.remotePeer, [
-      connection.remoteAddr,
-    ]);
-    setRemotePeerIds((prevRemotePeerIds) => [
-      ...prevRemotePeerIds,
-      connection.remotePeer,
-    ]);
-  });
+  // node?.connectionManager.addEventListener("peer:connect", (evt) => {
+  //   const connection = evt.detail;
+  //   console.log(`Connected to ${connection.remotePeer.toString()}`);
+  //   node?.peerStore.addressBook.set(connection.remotePeer, [
+  //     connection.remoteAddr,
+  //   ]);
+  //   //@ts-ignore
+  //   dispatch(setRemotePeerIds((prevRemotePeerIds) => [
+  //     ...prevRemotePeerIds,
+  //     connection.remotePeer,
+  //   ]));
+  // });
 
   async function handleChangeRemotePeerId() {
     //TODO: Manually dial peer
@@ -199,12 +201,14 @@ const FindPeers = () => {
                     placeholder="12D3KooWBr19pozVrpu7c4jqjHiWd26Z9uxQsHbL1ZPbhoRbQ2dw"
                     fullWidth
                     size="medium"
-                    onChange={(e) => setRemotePeerIdAsString(e.target.value)}
+                    onChange={(e) =>
+                      dispatch(setRemotePeerIdAsString(e.target.value))
+                    }
                     value={remotePeerIdAsString}
                   ></TextField>
                 </Grid>
                 <Grid item xs={3}>
-                  {remotePeerIds.find(
+                  {remotePeerIds?.find(
                     (item) => item.toString() === remotePeerIdAsString
                   ) ? (
                     <Button

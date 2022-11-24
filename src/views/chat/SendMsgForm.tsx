@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, SyntheticEvent } from "react";
+import { useState, SyntheticEvent, useEffect } from "react";
 
 // ** MUI Imports
 import Button from "@mui/material/Button";
@@ -14,6 +14,7 @@ import Paperclip from "mdi-material-ui/Paperclip";
 
 // ** Types
 import { SendMsgComponentType } from "src/context/chatTypes";
+import { useAppSelector } from "src/store/hooks";
 
 // ** Styled Components
 const ChatFormWrapper = styled(Box)<BoxProps>(({ theme }) => ({
@@ -36,6 +37,9 @@ const SendMsgForm = (props: SendMsgComponentType) => {
 
   // ** State
   const [msg, setMsg] = useState<string>("");
+  const [isConnected, setIsConnected] = useState<boolean>(false);
+
+  const node = useAppSelector((state) => state.node.node);
 
   const handleSendMsg = (e: SyntheticEvent) => {
     e.preventDefault();
@@ -44,6 +48,12 @@ const SendMsgForm = (props: SendMsgComponentType) => {
     }
     setMsg("");
   };
+
+  useEffect(() => {
+    //@ts-ignore
+    console.log(node?.connectionManager.getConnections().length)
+    console.log(node?.connectionManager.getConnections().map((c) => c.remoteAddr.toString()));
+  }, []);  
 
   return (
     <Form onSubmit={handleSendMsg}>
@@ -62,19 +72,7 @@ const SendMsgForm = (props: SendMsgComponentType) => {
           />
         </Box>
         <Box sx={{ display: "flex", alignItems: "center" }}>
-          <IconButton size="small" sx={{ mr: 1.5, color: "text.primary" }}>
-            <Microphone sx={{ fontSize: "1.375rem" }} />
-          </IconButton>
-          <IconButton
-            size="small"
-            component="label"
-            htmlFor="upload-img"
-            sx={{ mr: 2.75, color: "text.primary" }}
-          >
-            <Paperclip sx={{ fontSize: "1.375rem" }} />
-            <input hidden type="file" id="upload-img" />
-          </IconButton>
-          <Button type="submit" variant="contained">
+          <Button type="submit" variant="contained" disabled>
             Send
           </Button>
         </Box>

@@ -90,3 +90,117 @@ export const listStreams = /* GraphQL */ `
     }
   }
 `;
+export const getUser = /* GraphQL */ `
+  query GetUser($owner: String!) {
+    getUser(owner: $owner) {
+      owner
+      email
+      peerId
+      fullName
+      about
+      role
+      nickname
+      avatar
+      contacts
+      chats {
+        items {
+          id
+          userId
+          unseenMsgs
+          chat
+          createdAt
+          updatedAt
+          owner
+        }
+        nextToken
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const listUsers = /* GraphQL */ `
+  query ListUsers(
+    $owner: String
+    $filter: ModelUserFilterInput
+    $limit: Int
+    $nextToken: String
+    $sortDirection: ModelSortDirection
+  ) {
+    listUsers(
+      owner: $owner
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      sortDirection: $sortDirection
+    ) {
+      items {
+        owner
+        email
+        peerId
+        fullName
+        about
+        role
+        nickname
+        avatar
+        contacts
+        chats {
+          items {
+            id
+            userId
+            unseenMsgs
+            chat
+            createdAt
+            updatedAt
+            owner
+          }
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      nextToken
+    }
+  }
+`;
+export const getChat = /* GraphQL */ `
+  query GetChat($id: ID!) {
+    getChat(id: $id) {
+      id
+      userId
+      unseenMsgs
+      chat
+      createdAt
+      updatedAt
+      owner
+    }
+  }
+`;
+export const listChats = /* GraphQL */ `
+  query ListChats(
+    $id: ID
+    $filter: ModelChatFilterInput
+    $limit: Int
+    $nextToken: String
+    $sortDirection: ModelSortDirection
+  ) {
+    listChats(
+      id: $id
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      sortDirection: $sortDirection
+    ) {
+      items {
+        id
+        userId
+        unseenMsgs
+        chat
+        createdAt
+        updatedAt
+        owner
+      }
+      nextToken
+    }
+  }
+`;
