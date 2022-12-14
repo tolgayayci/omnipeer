@@ -14,6 +14,7 @@ export const createStorage = /* GraphQL */ `
       size
       createdAt
       updatedAt
+      userStorageId
       owner
     }
   }
@@ -30,6 +31,7 @@ export const updateStorage = /* GraphQL */ `
       size
       createdAt
       updatedAt
+      userStorageId
       owner
     }
   }
@@ -46,63 +48,7 @@ export const deleteStorage = /* GraphQL */ `
       size
       createdAt
       updatedAt
-      owner
-    }
-  }
-`;
-export const createStream = /* GraphQL */ `
-  mutation CreateStream(
-    $input: CreateStreamInput!
-    $condition: ModelStreamConditionInput
-  ) {
-    createStream(input: $input, condition: $condition) {
-      ownerPeerId
-      remotePeerId
-      name
-      type
-      size
-      status
-      statusDetails
-      createdAt
-      updatedAt
-      owner
-    }
-  }
-`;
-export const updateStream = /* GraphQL */ `
-  mutation UpdateStream(
-    $input: UpdateStreamInput!
-    $condition: ModelStreamConditionInput
-  ) {
-    updateStream(input: $input, condition: $condition) {
-      ownerPeerId
-      remotePeerId
-      name
-      type
-      size
-      status
-      statusDetails
-      createdAt
-      updatedAt
-      owner
-    }
-  }
-`;
-export const deleteStream = /* GraphQL */ `
-  mutation DeleteStream(
-    $input: DeleteStreamInput!
-    $condition: ModelStreamConditionInput
-  ) {
-    deleteStream(input: $input, condition: $condition) {
-      ownerPeerId
-      remotePeerId
-      name
-      type
-      size
-      status
-      statusDetails
-      createdAt
-      updatedAt
+      userStorageId
       owner
     }
   }
@@ -121,15 +67,51 @@ export const createUser = /* GraphQL */ `
       role
       nickname
       avatar
-      contacts
       chats {
         items {
           id
+          senderId
           userId
           unseenMsgs
           chat
+          owners
           createdAt
           updatedAt
+        }
+        nextToken
+      }
+      friends {
+        items {
+          id
+          contactId
+          contact {
+            owner
+            email
+            peerId
+            fullName
+            about
+            role
+            nickname
+            avatar
+            createdAt
+            updatedAt
+          }
+          status
+          owners
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      storage {
+        items {
+          cid
+          name
+          type
+          size
+          createdAt
+          updatedAt
+          userStorageId
           owner
         }
         nextToken
@@ -153,15 +135,51 @@ export const updateUser = /* GraphQL */ `
       role
       nickname
       avatar
-      contacts
       chats {
         items {
           id
+          senderId
           userId
           unseenMsgs
           chat
+          owners
           createdAt
           updatedAt
+        }
+        nextToken
+      }
+      friends {
+        items {
+          id
+          contactId
+          contact {
+            owner
+            email
+            peerId
+            fullName
+            about
+            role
+            nickname
+            avatar
+            createdAt
+            updatedAt
+          }
+          status
+          owners
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      storage {
+        items {
+          cid
+          name
+          type
+          size
+          createdAt
+          updatedAt
+          userStorageId
           owner
         }
         nextToken
@@ -185,15 +203,51 @@ export const deleteUser = /* GraphQL */ `
       role
       nickname
       avatar
-      contacts
       chats {
         items {
           id
+          senderId
           userId
           unseenMsgs
           chat
+          owners
           createdAt
           updatedAt
+        }
+        nextToken
+      }
+      friends {
+        items {
+          id
+          contactId
+          contact {
+            owner
+            email
+            peerId
+            fullName
+            about
+            role
+            nickname
+            avatar
+            createdAt
+            updatedAt
+          }
+          status
+          owners
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      storage {
+        items {
+          cid
+          name
+          type
+          size
+          createdAt
+          updatedAt
+          userStorageId
           owner
         }
         nextToken
@@ -210,12 +264,13 @@ export const createChat = /* GraphQL */ `
   ) {
     createChat(input: $input, condition: $condition) {
       id
+      senderId
       userId
       unseenMsgs
       chat
+      owners
       createdAt
       updatedAt
-      owner
     }
   }
 `;
@@ -226,12 +281,13 @@ export const updateChat = /* GraphQL */ `
   ) {
     updateChat(input: $input, condition: $condition) {
       id
+      senderId
       userId
       unseenMsgs
       chat
+      owners
       createdAt
       updatedAt
-      owner
     }
   }
 `;
@@ -242,12 +298,205 @@ export const deleteChat = /* GraphQL */ `
   ) {
     deleteChat(input: $input, condition: $condition) {
       id
+      senderId
       userId
       unseenMsgs
       chat
+      owners
       createdAt
       updatedAt
-      owner
+    }
+  }
+`;
+export const createFriendship = /* GraphQL */ `
+  mutation CreateFriendship(
+    $input: CreateFriendshipInput!
+    $condition: ModelFriendshipConditionInput
+  ) {
+    createFriendship(input: $input, condition: $condition) {
+      id
+      contactId
+      contact {
+        owner
+        email
+        peerId
+        fullName
+        about
+        role
+        nickname
+        avatar
+        chats {
+          items {
+            id
+            senderId
+            userId
+            unseenMsgs
+            chat
+            owners
+            createdAt
+            updatedAt
+          }
+          nextToken
+        }
+        friends {
+          items {
+            id
+            contactId
+            status
+            owners
+            createdAt
+            updatedAt
+          }
+          nextToken
+        }
+        storage {
+          items {
+            cid
+            name
+            type
+            size
+            createdAt
+            updatedAt
+            userStorageId
+            owner
+          }
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      status
+      owners
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const updateFriendship = /* GraphQL */ `
+  mutation UpdateFriendship(
+    $input: UpdateFriendshipInput!
+    $condition: ModelFriendshipConditionInput
+  ) {
+    updateFriendship(input: $input, condition: $condition) {
+      id
+      contactId
+      contact {
+        owner
+        email
+        peerId
+        fullName
+        about
+        role
+        nickname
+        avatar
+        chats {
+          items {
+            id
+            senderId
+            userId
+            unseenMsgs
+            chat
+            owners
+            createdAt
+            updatedAt
+          }
+          nextToken
+        }
+        friends {
+          items {
+            id
+            contactId
+            status
+            owners
+            createdAt
+            updatedAt
+          }
+          nextToken
+        }
+        storage {
+          items {
+            cid
+            name
+            type
+            size
+            createdAt
+            updatedAt
+            userStorageId
+            owner
+          }
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      status
+      owners
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const deleteFriendship = /* GraphQL */ `
+  mutation DeleteFriendship(
+    $input: DeleteFriendshipInput!
+    $condition: ModelFriendshipConditionInput
+  ) {
+    deleteFriendship(input: $input, condition: $condition) {
+      id
+      contactId
+      contact {
+        owner
+        email
+        peerId
+        fullName
+        about
+        role
+        nickname
+        avatar
+        chats {
+          items {
+            id
+            senderId
+            userId
+            unseenMsgs
+            chat
+            owners
+            createdAt
+            updatedAt
+          }
+          nextToken
+        }
+        friends {
+          items {
+            id
+            contactId
+            status
+            owners
+            createdAt
+            updatedAt
+          }
+          nextToken
+        }
+        storage {
+          items {
+            cid
+            name
+            type
+            size
+            createdAt
+            updatedAt
+            userStorageId
+            owner
+          }
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      status
+      owners
+      createdAt
+      updatedAt
     }
   }
 `;

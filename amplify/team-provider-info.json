@@ -14,6 +14,9 @@
     "categories": {
       "auth": {
         "omnipeer53799b07": {}
+      },
+      "api": {
+        "omnipeer": {}
       }
     }
   }

@@ -1,87 +1,113 @@
 // ** React Imports
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from "react";
 
 // ** MUI Imports
-import Box from '@mui/material/Box'
-import { useTheme } from '@mui/material/styles'
-import useMediaQuery from '@mui/material/useMediaQuery'
+import Box from "@mui/material/Box";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 // ** Store & Actions Imports
-import { useDispatch, useSelector } from 'react-redux'
-import { sendMsg, selectChat, fetchUserProfile, fetchChatsContacts, removeSelectedChat } from 'src/store/apps/chat'
+import { useDispatch, useSelector } from "react-redux";
+import {
+  sendMsg,
+  selectChat,
+  fetchUserProfile,
+  fetchChatsContacts,
+  removeSelectedChat,
+} from "src/store/apps/chat";
 
 // ** Types
-import { RootState, AppDispatch } from 'src/store'
-import { StatusObjType, StatusType } from 'src/context/chatTypes'
+import { RootState, AppDispatch } from "src/store";
+import { StatusObjType, StatusType } from "src/context/chatTypes";
 
 // ** Hooks
-import { useSettings } from 'src/@core/hooks/useSettings'
+import { useSettings } from "src/@core/hooks/useSettings";
 
 // ** Utils Imports
-import { getInitials } from 'src/@core/utils/get-initials'
-import { formatDateToMonthShort } from 'src/@core/utils/format'
+import { getInitials } from "src/@core/utils/get-initials";
+import { formatDateToMonthShort } from "src/@core/utils/format";
 
 // ** Chat App Components Imports
-import SidebarLeft from 'src/views/chat/SidebarLeft'
-import ChatContent from 'src/views/chat/ChatContent'
-import { useAppSelector } from 'src/store/hooks'
+import SidebarLeft from "src/views/chat/SidebarLeft";
+import ChatContent from "src/views/chat/ChatContent";
+import { useAppDispatch, useAppSelector } from "src/store/hooks";
+
+import { toString as uint8ArrayToString } from "uint8arrays/to-string";
+
+// ** Amplify Imports
 
 const AppChat = () => {
   // ** States
-  const [userStatus, setUserStatus] = useState<StatusType>('online')
-  const [leftSidebarOpen, setLeftSidebarOpen] = useState<boolean>(false)
-  const [userProfileLeftOpen, setUserProfileLeftOpen] = useState<boolean>(false)
-  const [userProfileRightOpen, setUserProfileRightOpen] = useState<boolean>(false)
+  const [userStatus, setUserStatus] = useState<StatusType>("online");
+  const [leftSidebarOpen, setLeftSidebarOpen] = useState<boolean>(false);
+  const [userProfileLeftOpen, setUserProfileLeftOpen] =
+    useState<boolean>(false);
+  const [userProfileRightOpen, setUserProfileRightOpen] =
+    useState<boolean>(false);
 
   // ** Hooks
-  const theme = useTheme()
-  const { settings } = useSettings()
-  const dispatch = useDispatch<AppDispatch>()
-  const hidden = useMediaQuery(theme.breakpoints.down('lg'))
-  const store = useAppSelector((state) => state.chat)
+  const theme = useTheme();
+  const { settings } = useSettings();
+  const dispatch = useDispatch<AppDispatch>();
+  const hidden = useMediaQuery(theme.breakpoints.down("lg"));
+  const store = useAppSelector((state) => state.chat);
+  const nodeStore = useAppSelector((state) => state.node.node);
 
   // ** Vars
-  const smAbove = useMediaQuery(theme.breakpoints.up('sm'))
-  const sidebarWidth = smAbove ? 370 : 300
-  const mdAbove = useMediaQuery(theme.breakpoints.up('md'))
-  const { skin, appBar, footer, layout, navHidden } = settings
+  const smAbove = useMediaQuery(theme.breakpoints.up("sm"));
+  const sidebarWidth = smAbove ? 370 : 300;
+  const mdAbove = useMediaQuery(theme.breakpoints.up("md"));
+  const { skin, appBar, footer, layout, navHidden } = settings;
   const statusObj: StatusObjType = {
-    busy: 'error',
-    away: 'warning',
-    online: 'success',
-    offline: 'secondary'
-  }
+    busy: "error",
+    away: "warning",
+    online: "success",
+    offline: "secondary",
+  };
 
   useEffect(() => {
-    dispatch(fetchUserProfile())
-    dispatch(fetchChatsContacts())
-  }, [dispatch])
+    dispatch(fetchUserProfile());
+    dispatch(fetchChatsContacts());
+  }, [dispatch, nodeStore]);
 
-  const handleLeftSidebarToggle = () => setLeftSidebarOpen(!leftSidebarOpen)
-  const handleUserProfileLeftSidebarToggle = () => setUserProfileLeftOpen(!userProfileLeftOpen)
-  const handleUserProfileRightSidebarToggle = () => setUserProfileRightOpen(!userProfileRightOpen)
+  const handleLeftSidebarToggle = () => setLeftSidebarOpen(!leftSidebarOpen);
+  const handleUserProfileLeftSidebarToggle = () =>
+    setUserProfileLeftOpen(!userProfileLeftOpen);
+  const handleUserProfileRightSidebarToggle = () =>
+    setUserProfileRightOpen(!userProfileRightOpen);
 
   const calculateAppHeight = () => {
     return `(${
-      (appBar === 'hidden' ? 0 : (theme.mixins.toolbar.minHeight as number)) *
-        (layout === 'horizontal' && !navHidden ? 2 : 1) +
-      (footer === 'hidden' ? 0 : 56)
-    }px + ${theme.spacing(6)} * 2)`
-  }
+      (appBar === "hidden" ? 0 : (theme.mixins.toolbar.minHeight as number)) *
+        (layout === "horizontal" && !navHidden ? 2 : 1) +
+      (footer === "hidden" ? 0 : 56)
+    }px + ${theme.spacing(6)} * 2)`;
+  };
+
+  useEffect(() => {
+    nodeStore?.pubsub.addEventListener("message", (msg) => {
+      //@ts-ignore
+      if (msg.detail.topic !== "chat") return;
+      console.log(uint8ArrayToString(msg.detail.data));
+      dispatch(fetchChatsContacts())
+    });
+  }, [store.chats]);
 
   return (
     <Box
-      className='app-chat'
+      className="app-chat"
       sx={{
-        width: '100%',
-        display: 'flex',
+        width: "100%",
+        display: "flex",
         borderRadius: 1,
-        overflow: 'hidden',
-        position: 'relative',
-        backgroundColor: 'background.paper',
-        boxShadow: skin === 'bordered' ? 0 : 6,
+        overflow: "hidden",
+        position: "relative",
+        backgroundColor: "background.paper",
+        boxShadow: skin === "bordered" ? 0 : 6,
         height: `calc(100vh - ${calculateAppHeight()})`,
-        ...(skin === 'bordered' && { border: `1px solid ${theme.palette.divider}` })
+        ...(skin === "bordered" && {
+          border: `1px solid ${theme.palette.divider}`,
+        }),
       }}
     >
       <SidebarLeft
@@ -113,10 +139,12 @@ const AppChat = () => {
         sidebarWidth={sidebarWidth}
         userProfileRightOpen={userProfileRightOpen}
         handleLeftSidebarToggle={handleLeftSidebarToggle}
-        handleUserProfileRightSidebarToggle={handleUserProfileRightSidebarToggle}
+        handleUserProfileRightSidebarToggle={
+          handleUserProfileRightSidebarToggle
+        }
       />
     </Box>
-  )
-}
+  );
+};
 
-export default AppChat
+export default AppChat;

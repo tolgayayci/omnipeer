@@ -32,6 +32,9 @@ import Minus from "mdi-material-ui/Minus";
 import { useAppDispatch, useAppSelector } from "src/store/hooks";
 import { setRemotePeerIds, setRemotePeerIdAsString } from "src/store/apps/node";
 
+import type { Friendship, User } from "src/API";
+import ListUsers from "src/views/transfer/UserList";
+
 // Styled component for Accordion component
 const Accordion = styled(MuiAccordion)<AccordionProps>(({ theme }) => ({
   boxShadow: "none !important",
@@ -91,38 +94,47 @@ const FindPeers = () => {
   const [expanded, setExpanded] = useState<string | false>("panel1");
 
   const node = useAppSelector((state) => state.node.node);
+  const user = useAppSelector((state) => state.user);
   const remotePeerIds = useAppSelector((state) => state.node.remotePeerIds);
   const remotePeerIdAsString = useAppSelector(
     (state) => state.node.remotePeerIdAsString
   );
+  const [contacts, setContacts] = useState<string[]>([]);
 
   const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    console.log(remotePeerIds);
-  }, []);
 
   const handleChange =
     (panel: string) => (event: SyntheticEvent, isExpanded: boolean) => {
       setExpanded(isExpanded ? panel : false);
     };
 
-  // node?.connectionManager.addEventListener("peer:connect", (evt) => {
-  //   const connection = evt.detail;
-  //   console.log(`Connected to ${connection.remotePeer.toString()}`);
-  //   node?.peerStore.addressBook.set(connection.remotePeer, [
-  //     connection.remoteAddr,
-  //   ]);
-  //   //@ts-ignore
-  //   dispatch(setRemotePeerIds((prevRemotePeerIds) => [
-  //     ...prevRemotePeerIds,
-  //     connection.remotePeer,
-  //   ]));
-  // });
+  node?.connectionManager.addEventListener("peer:connect", (evt) => {
+    const connection = evt.detail;
+    console.log(`Connected to ${connection.remotePeer.toString()}`);
+    node?.peerStore.addressBook.set(connection.remotePeer, [
+      connection.remoteAddr,
+    ]);
+    //@ts-ignore
+    dispatch(setRemotePeerIds([...remotePeerIds, connection.remotePeer]));
+  });
 
   async function handleChangeRemotePeerId() {
     //TODO: Manually dial peer
   }
+
+  useEffect(() => {
+    if (user.contacts?.items.length) {
+      //@ts-ignore
+      user.contacts?.items.map((contact: Friendship, index: number) => {
+        let peerIdsArray = contacts;
+
+        //@ts-ignore
+        peerIdsArray.splice(index, 1, contact);
+
+        setContacts(peerIdsArray);
+      });
+    }
+  }, [user.contacts]);
 
   const expandIcon = (value: string) =>
     expanded === value ? <Minus /> : <Plus />;
@@ -191,6 +203,21 @@ const FindPeers = () => {
               expandIcon={expandIcon("panel1")}
               aria-controls="customized-panel-content-1"
             >
+              <Typography>Show Peers & Connect</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <ListUsers users={contacts} />
+            </AccordionDetails>
+          </Accordion>
+          <Accordion
+            expanded={expanded === "panel2"}
+            onChange={handleChange("panel2")}
+          >
+            <AccordionSummary
+              id="customized-panel-header-2"
+              expandIcon={expandIcon("panel2")}
+              aria-controls="customized-panel-content-2"
+            >
               <Typography>Manually Connect</Typography>
             </AccordionSummary>
             <AccordionDetails>
@@ -236,25 +263,6 @@ const FindPeers = () => {
                       Connect
                     </Button>
                   )}
-                </Grid>
-              </Grid>
-            </AccordionDetails>
-          </Accordion>
-          <Accordion
-            expanded={expanded === "panel2"}
-            onChange={handleChange("panel2")}
-          >
-            <AccordionSummary
-              id="customized-panel-header-2"
-              expandIcon={expandIcon("panel2")}
-              aria-controls="customized-panel-content-2"
-            >
-              <Typography>Show Peers & Connect</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Grid container spacing={5}>
-                <Grid item xs={12} sm={12}>
-                  {/* <PeerTable /> */}
                 </Grid>
               </Grid>
             </AccordionDetails>

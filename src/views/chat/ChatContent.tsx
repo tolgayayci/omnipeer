@@ -13,9 +13,6 @@ import Box, { BoxProps } from "@mui/material/Box";
 
 // ** Icons Imports
 import MenuIcon from "mdi-material-ui/Menu";
-import Magnify from "mdi-material-ui/Magnify";
-import PhoneOutline from "mdi-material-ui/PhoneOutline";
-import VideoOutline from "mdi-material-ui/VideoOutline";
 import DotsVertical from "mdi-material-ui/DotsVertical";
 import MessageOutline from "mdi-material-ui/MessageOutline";
 
@@ -23,10 +20,12 @@ import MessageOutline from "mdi-material-ui/MessageOutline";
 import ChatLog from "./ChatLog";
 import SendMsgForm from "src/views/chat/SendMsgForm";
 import CustomAvatar from "src/@core/components/mui/avatar";
-import UserProfileRight from "src/views/chat/UserProfileRight";
 
 // ** Types
 import { ChatContentType } from "src/context/chatTypes";
+
+import { useAppSelector, useAppDispatch } from "src/store/hooks";
+import { fetchChatsContacts, selectChat } from "src/store/apps/chat";
 
 // ** Styled Components
 const ChatWrapperStartChat = styled(Box)<BoxProps>(({ theme }) => ({
@@ -74,9 +73,19 @@ const ChatContent = (props: ChatContentType) => {
     }
   };
 
+  const nodeStore = useAppSelector((state) => state.node.node);
+
+  nodeStore?.pubsub.addEventListener("message", (msg) => {
+    //@ts-ignore
+    if (msg.detail.topic !== "chat") return;
+    dispatch(fetchChatsContacts());
+    
+  });
+
   const renderContent = () => {
     if (store) {
       const selectedChat = store.selectedChat;
+
       if (!selectedChat) {
         return (
           <ChatWrapperStartChat
@@ -167,14 +176,14 @@ const ChatContent = (props: ChatContentType) => {
                           width: 8,
                           height: 8,
                           borderRadius: "50%",
-                          color: `${
-                            statusObj[selectedChat.contact.status]
-                          }.main`,
-                          boxShadow: (theme) =>
-                            `0 0 0 2px ${theme.palette.background.paper}`,
-                          backgroundColor: `${
-                            statusObj[selectedChat.contact.status]
-                          }.main`,
+                          // color: `${
+                          //   statusObj[selectedChat.contact.status]
+                          // }.main`,
+                          // boxShadow: (theme) =>
+                          //   `0 0 0 2px ${theme.palette.background.paper}`,
+                          // backgroundColor: `${
+                          //   statusObj[selectedChat.contact.status]
+                          // }.main`,
                         }}
                       />
                     }
@@ -245,7 +254,6 @@ const ChatContent = (props: ChatContentType) => {
             ) : null}
 
             <SendMsgForm store={store} dispatch={dispatch} sendMsg={sendMsg} />
-
           </Box>
         );
       }

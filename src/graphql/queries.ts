@@ -11,6 +11,7 @@ export const getStorage = /* GraphQL */ `
       size
       createdAt
       updatedAt
+      userStorageId
       owner
     }
   }
@@ -37,53 +38,7 @@ export const listStorages = /* GraphQL */ `
         size
         createdAt
         updatedAt
-        owner
-      }
-      nextToken
-    }
-  }
-`;
-export const getStream = /* GraphQL */ `
-  query GetStream($ownerPeerId: String!) {
-    getStream(ownerPeerId: $ownerPeerId) {
-      ownerPeerId
-      remotePeerId
-      name
-      type
-      size
-      status
-      statusDetails
-      createdAt
-      updatedAt
-      owner
-    }
-  }
-`;
-export const listStreams = /* GraphQL */ `
-  query ListStreams(
-    $ownerPeerId: String
-    $filter: ModelStreamFilterInput
-    $limit: Int
-    $nextToken: String
-    $sortDirection: ModelSortDirection
-  ) {
-    listStreams(
-      ownerPeerId: $ownerPeerId
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-      sortDirection: $sortDirection
-    ) {
-      items {
-        ownerPeerId
-        remotePeerId
-        name
-        type
-        size
-        status
-        statusDetails
-        createdAt
-        updatedAt
+        userStorageId
         owner
       }
       nextToken
@@ -101,15 +56,51 @@ export const getUser = /* GraphQL */ `
       role
       nickname
       avatar
-      contacts
       chats {
         items {
           id
+          senderId
           userId
           unseenMsgs
           chat
+          owners
           createdAt
           updatedAt
+        }
+        nextToken
+      }
+      friends {
+        items {
+          id
+          contactId
+          contact {
+            owner
+            email
+            peerId
+            fullName
+            about
+            role
+            nickname
+            avatar
+            createdAt
+            updatedAt
+          }
+          status
+          owners
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      storage {
+        items {
+          cid
+          name
+          type
+          size
+          createdAt
+          updatedAt
+          userStorageId
           owner
         }
         nextToken
@@ -143,15 +134,107 @@ export const listUsers = /* GraphQL */ `
         role
         nickname
         avatar
-        contacts
         chats {
           items {
             id
+            senderId
             userId
             unseenMsgs
             chat
+            owners
             createdAt
             updatedAt
+          }
+          nextToken
+        }
+        friends {
+          items {
+            id
+            contactId
+            status
+            owners
+            createdAt
+            updatedAt
+          }
+          nextToken
+        }
+        storage {
+          items {
+            cid
+            name
+            type
+            size
+            createdAt
+            updatedAt
+            userStorageId
+            owner
+          }
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      nextToken
+    }
+  }
+`;
+export const userByEmail = /* GraphQL */ `
+  query UserByEmail(
+    $email: AWSEmail!
+    $sortDirection: ModelSortDirection
+    $filter: ModelUserFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    userByEmail(
+      email: $email
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        owner
+        email
+        peerId
+        fullName
+        about
+        role
+        nickname
+        avatar
+        chats {
+          items {
+            id
+            senderId
+            userId
+            unseenMsgs
+            chat
+            owners
+            createdAt
+            updatedAt
+          }
+          nextToken
+        }
+        friends {
+          items {
+            id
+            contactId
+            status
+            owners
+            createdAt
+            updatedAt
+          }
+          nextToken
+        }
+        storage {
+          items {
+            cid
+            name
+            type
+            size
+            createdAt
+            updatedAt
+            userStorageId
             owner
           }
           nextToken
@@ -167,12 +250,13 @@ export const getChat = /* GraphQL */ `
   query GetChat($id: ID!) {
     getChat(id: $id) {
       id
+      senderId
       userId
       unseenMsgs
       chat
+      owners
       createdAt
       updatedAt
-      owner
     }
   }
 `;
@@ -193,12 +277,199 @@ export const listChats = /* GraphQL */ `
     ) {
       items {
         id
+        senderId
         userId
         unseenMsgs
         chat
+        owners
         createdAt
         updatedAt
+      }
+      nextToken
+    }
+  }
+`;
+export const chatsByUserId = /* GraphQL */ `
+  query ChatsByUserId(
+    $userId: String!
+    $sortDirection: ModelSortDirection
+    $filter: ModelChatFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    chatsByUserId(
+      userId: $userId
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        senderId
+        userId
+        unseenMsgs
+        chat
+        owners
+        createdAt
+        updatedAt
+      }
+      nextToken
+    }
+  }
+`;
+export const getFriendship = /* GraphQL */ `
+  query GetFriendship($id: ID!) {
+    getFriendship(id: $id) {
+      id
+      contactId
+      contact {
         owner
+        email
+        peerId
+        fullName
+        about
+        role
+        nickname
+        avatar
+        chats {
+          items {
+            id
+            senderId
+            userId
+            unseenMsgs
+            chat
+            owners
+            createdAt
+            updatedAt
+          }
+          nextToken
+        }
+        friends {
+          items {
+            id
+            contactId
+            status
+            owners
+            createdAt
+            updatedAt
+          }
+          nextToken
+        }
+        storage {
+          items {
+            cid
+            name
+            type
+            size
+            createdAt
+            updatedAt
+            userStorageId
+            owner
+          }
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      status
+      owners
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const listFriendships = /* GraphQL */ `
+  query ListFriendships(
+    $id: ID
+    $filter: ModelFriendshipFilterInput
+    $limit: Int
+    $nextToken: String
+    $sortDirection: ModelSortDirection
+  ) {
+    listFriendships(
+      id: $id
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      sortDirection: $sortDirection
+    ) {
+      items {
+        id
+        contactId
+        contact {
+          owner
+          email
+          peerId
+          fullName
+          about
+          role
+          nickname
+          avatar
+          chats {
+            nextToken
+          }
+          friends {
+            nextToken
+          }
+          storage {
+            nextToken
+          }
+          createdAt
+          updatedAt
+        }
+        status
+        owners
+        createdAt
+        updatedAt
+      }
+      nextToken
+    }
+  }
+`;
+export const friendsByUserId = /* GraphQL */ `
+  query FriendsByUserId(
+    $contactId: String!
+    $sortDirection: ModelSortDirection
+    $filter: ModelFriendshipFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    friendsByUserId(
+      contactId: $contactId
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        contactId
+        contact {
+          owner
+          email
+          peerId
+          fullName
+          about
+          role
+          nickname
+          avatar
+          chats {
+            nextToken
+          }
+          friends {
+            nextToken
+          }
+          storage {
+            nextToken
+          }
+          createdAt
+          updatedAt
+        }
+        status
+        owners
+        createdAt
+        updatedAt
       }
       nextToken
     }

@@ -45,7 +45,7 @@
     "@walletconnect/sign-client": "^2.1.0",
     "@walletconnect/types": "^2.1.0",
     "apexcharts-clevision": "3.28.5",
-    "aws-amplify": "4.3.22",
+    "aws-amplify": "^5.0.2",
     "axios": "0.27.2",
     "axios-mock-adapter": "^1.21.2",
     "chart.js": "3.7.1",
@@ -89,7 +89,8 @@
     "stylis-plugin-rtl": "2.1.1",
     "web3": "^1.8.0",
     "web3.storage": "^4.4.0",
-    "yup": "0.32.9"
+    "yup": "0.32.9",
+    "zen-observable-ts": "^1.1.0"
   },
   "devDependencies": {
     "@types/cleave.js": "1.4.6",

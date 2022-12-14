@@ -86,14 +86,18 @@ const SidebarLeft = (props: ChatSidebarLeftType) => {
   const [filteredContacts, setFilteredContacts] = useState<ContactType[]>([]);
   const [active, setActive] = useState<null | {
     type: string;
-    id: string | number;
+    id: string | number | null;
   }>(null);
 
   // ** Hooks
   const router = useRouter();
 
-  const handleChatClick = (type: "chat" | "contact", id: number) => {
-    dispatch(selectChat(id));
+  const handleChatClick = (
+    type: "chat" | "contact",
+    id: string | null,
+    userId: string
+  ) => {
+    dispatch(selectChat([id, userId]));
     setActive({ type, id });
     if (!mdAbove) {
       handleLeftSidebarToggle();
@@ -142,11 +146,13 @@ const SidebarLeft = (props: ChatSidebarLeftType) => {
           </ListItem>
         );
       } else {
+        // @ts-ignore
         const arrToMap =
           query.length && filteredChat.length ? filteredChat : store.chats;
 
-        return arrToMap.map((chat: ChatsArrType, index: number) => {
+        return arrToMap.slice(0, 1).map((chat: ChatsArrType, index: number) => {
           const { lastMessage } = chat.chat;
+
           const activeCondition =
             active !== null && active.id === chat.id && active.type === "chat";
 
@@ -158,7 +164,10 @@ const SidebarLeft = (props: ChatSidebarLeftType) => {
             >
               <ListItemButton
                 disableRipple
-                onClick={() => handleChatClick("chat", chat.id)}
+                onClick={() =>
+                  //@ts-ignore
+                  handleChatClick("chat", chat.chat.id, chat.owner)
+                }
                 sx={{
                   px: 2.5,
                   py: 2.5,
@@ -306,6 +315,14 @@ const SidebarLeft = (props: ChatSidebarLeftType) => {
           );
         });
       }
+    } else {
+      return (
+        <ListItem>
+          <Typography sx={{ color: "text.secondary" }}>
+            No Chats Found
+          </Typography>
+        </ListItem>
+      );
     }
   };
 
@@ -344,7 +361,10 @@ const SidebarLeft = (props: ChatSidebarLeftType) => {
                     onClick={() =>
                       handleChatClick(
                         hasActiveId(contact.id) ? "chat" : "contact",
-                        contact.id
+                        //@ts-ignore
+                        contact.chat?.id ? contact.chat?.id : "undefined",
+                        //@ts-ignore
+                        contact.owner
                       )
                     }
                     sx={{
@@ -429,14 +449,24 @@ const SidebarLeft = (props: ChatSidebarLeftType) => {
             })
           : null;
       }
+    } else {
+      return (
+        <ListItem>
+          <Typography sx={{ color: "text.secondary" }}>
+            No Contacts Found
+          </Typography>
+        </ListItem>
+      );
     }
   };
 
   const handleFilter = (e: ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
-    if (store.chats !== null && store.contacts !== null) {
+    //@ts-ignore
+    if (store.chats[0] && store.contacts !== null) {
       const searchFilterFunction = (contact: ChatsArrType | ContactType) =>
         contact.fullName.toLowerCase().includes(e.target.value.toLowerCase());
+      //@ts-ignore
       const filteredChatsArr = store.chats.filter(searchFilterFunction);
       const filteredContactsArr = store.contacts.filter(searchFilterFunction);
       setFilteredChat(filteredChatsArr);

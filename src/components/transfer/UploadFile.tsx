@@ -49,7 +49,7 @@ const HeadingTypography = styled(Typography)<TypographyProps>(({ theme }) => ({
 
 const UploadFile = () => {
   // ** State
-  const [files, setFiles] = useState<File[]>([]);
+  const files = useAppSelector((state) => state.node.files);
 
   const dispatch = useAppDispatch();
 
@@ -58,10 +58,9 @@ const UploadFile = () => {
     maxFiles: 1,
     maxSize: 100000000,
     onDrop: (acceptedFiles: File[]) => {
-      dispatch((node) =>
+      dispatch(
         setFiles(acceptedFiles.map((file: File) => Object.assign(file)))
       );
-      //setFiles(acceptedFiles.map((file: File) => Object.assign(file)));
     },
     onDropRejected: () => {
       toast.error("You can only upload 1 file & maximum size of 2 MB.", {
@@ -98,13 +97,14 @@ const UploadFile = () => {
 
   const handleRemoveFile = (file: FileProp) => {
     const uploadedFiles = files;
-    const filtered = uploadedFiles.filter(
+    const filtered = uploadedFiles?.filter(
       (i: FileProp) => i.name !== file.name
     );
-    setFiles([...filtered]);
+    //@ts-ignore
+    dispatch(setFiles([...filtered]));
   };
 
-  const fileList = files.map((file: FileProp) => (
+  const fileList = files?.map((file: FileProp) => (
     <ListItem key={file.name}>
       <div className="file-details">
         <div className="file-preview">{renderFilePreview(file)}</div>
@@ -152,7 +152,7 @@ const UploadFile = () => {
           </Box>
         </Box>
       </div>
-      {files.length ? (
+      {files?.length ? (
         <Fragment>
           <List>{fileList}</List>
         </Fragment>

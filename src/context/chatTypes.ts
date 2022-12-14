@@ -33,15 +33,17 @@ export type ChatType = {
 };
 
 export type ChatsObj = {
-  id: number;
-  userId: number;
+  id: string;
+  senderId: string;
+  userId: string;
+  owners: string[];
   chat: ChatType[];
   unseenMsgs: number;
   lastMessage?: ChatType;
 };
 
 export type ContactType = {
-  id: number;
+  id: string;
   role: string;
   about: string;
   avatar?: string;
@@ -51,7 +53,7 @@ export type ContactType = {
 };
 
 export type ChatsArrType = {
-  id: number;
+  id: string;
   role: string;
   about: string;
   chat: ChatsObj;
@@ -59,6 +61,7 @@ export type ChatsArrType = {
   fullName: string;
   status: StatusType;
   avatarColor?: ThemeColor;
+  peerId: string;
 };
 
 export type SelectedChatType = null | {
@@ -104,7 +107,7 @@ export type ChatSidebarLeftType = {
   statusObj: StatusObjType;
   userProfileLeftOpen: boolean;
   removeSelectedChat: () => void;
-  selectChat: (id: number) => void;
+  selectChat: (obj: Array<any>) => void;
   handleLeftSidebarToggle: () => void;
   getInitials: (val: string) => string;
   setUserStatus: (status: StatusType) => void;
@@ -162,11 +165,11 @@ export type ChatLogChatType = {
 };
 
 export type FormattedChatsType = {
-  senderId: number;
+  senderId: number | string;
   messages: ChatLogChatType[];
 };
 
 export type MessageGroupType = {
-  senderId: number;
+  senderId: number | string;
   messages: ChatLogChatType[];
 };

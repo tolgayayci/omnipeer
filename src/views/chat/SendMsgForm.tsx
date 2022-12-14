@@ -9,12 +9,16 @@ import IconButton from "@mui/material/IconButton";
 import Box, { BoxProps } from "@mui/material/Box";
 
 // ** Icons Imports
-import Microphone from "mdi-material-ui/Microphone";
-import Paperclip from "mdi-material-ui/Paperclip";
+import SendIcon from "mdi-material-ui/Send";
 
 // ** Types
 import { SendMsgComponentType } from "src/context/chatTypes";
 import { useAppSelector } from "src/store/hooks";
+
+import { LoadingButton } from "@mui/lab";
+
+// ** Amplify Imports
+import { fromString as uint8ArrayFromString } from "uint8arrays/from-string";
 
 // ** Styled Components
 const ChatFormWrapper = styled(Box)<BoxProps>(({ theme }) => ({
@@ -38,22 +42,60 @@ const SendMsgForm = (props: SendMsgComponentType) => {
   // ** State
   const [msg, setMsg] = useState<string>("");
   const [isConnected, setIsConnected] = useState<boolean>(false);
+  const [userOnePeerId, setUserOnePeerId] = useState<string>("");
+  const [userTwoPeerId, setUserTwoPeerId] = useState<string>("");
 
   const node = useAppSelector((state) => state.node.node);
 
-  const handleSendMsg = (e: SyntheticEvent) => {
+  const handleSendMsg = async (e: SyntheticEvent) => {
     e.preventDefault();
-    if (store && store.selectedChat && msg.trim().length) {
-      dispatch(sendMsg({ ...store.selectedChat, message: msg }));
+    if (store && store.selectedChat && msg.trim().length && isConnected) {
+      node?.pubsub
+        .publish("chat", uint8ArrayFromString(msg))
+        .then((data) => {
+          if (
+            data.recipients
+              .find(
+                (peerId) =>
+                  peerId.toString() === store.selectedChat?.contact.peerId
+              )
+              ?.toString()
+          ) {
+            console.log("Message sent successfully");
+            dispatch(sendMsg({ ...store.selectedChat, message: msg }));
+            setMsg("");
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+
+      //TODO: Add Validator for Message
     }
-    setMsg("");
   };
 
   useEffect(() => {
     //@ts-ignore
-    console.log(node?.connectionManager.getConnections().length)
-    console.log(node?.connectionManager.getConnections().map((c) => c.remoteAddr.toString()));
-  }, []);  
+    if (!isConnected) {
+      const connInterval = setInterval(async () => {
+        if (
+          node?.connectionManager
+            .getConnections()
+            .find(
+              (c) =>
+                c.remotePeer.toString() === store.selectedChat?.contact.peerId
+            )
+        ) {
+          setIsConnected(true);
+          clearInterval(connInterval);
+        }
+      }, 1000);
+    }
+  }, [node?.connectionManager.getConnections(), store.selectedChat]);
+
+  useEffect(() => {
+    //@ts-ignore
+  }, [isConnected]);
 
   return (
     <Form onSubmit={handleSendMsg}>
@@ -69,12 +111,24 @@ const SendMsgForm = (props: SendMsgComponentType) => {
               "& .MuiOutlinedInput-input": { pl: 0 },
               "& fieldset": { border: "0 !important" },
             }}
+            disabled={!isConnected}
           />
         </Box>
         <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Button type="submit" variant="contained" disabled>
-            Send
-          </Button>
+          {isConnected ? (
+            <Button type="submit" variant="contained" startIcon={<SendIcon />}>
+              Send
+            </Button>
+          ) : (
+            <LoadingButton
+              startIcon={<SendIcon />}
+              loading={true}
+              loadingPosition="start"
+              variant="outlined"
+            >
+              Connecting
+            </LoadingButton>
+          )}
         </Box>
       </ChatFormWrapper>
     </Form>

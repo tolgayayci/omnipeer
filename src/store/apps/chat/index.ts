@@ -1,195 +1,175 @@
 // ** Redux Imports
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-// ** Axios Imports
-import axios from 'axios'
-
 // ** Types
 import { Dispatch } from "redux";
 import { SendMsgParamsType } from "src/context/chatTypes";
 
 // ** Amplify Imports
 import { API, Auth, graphqlOperation } from "aws-amplify";
-import { createChat, updateChat, updateUser } from "src/graphql/mutations";
-import { getUser, listChats } from "src/graphql/queries";
-import { UpdateUserInput } from "src/API";
+import {
+  createChat,
+  updateChat,
+  createFriendship,
+} from "src/graphql/mutations";
+import { getUser, listChats, getChat } from "src/graphql/queries";
 import { ChatsObj, ContactType } from "src/context/chatTypes";
-import { gridPageCountSelector } from "@mui/x-data-grid";
+import {
+  CreateChatMutation,
+  User,
+  Chat,
+  CreateFriendshipInput,
+  Friendship,
+  FriendshipStatus,
+  CreateChatInput,
+} from "src/API";
 
 // ** Fetch User Profile
-export const fetchUserProfile = createAsyncThunk('appChat/fetchUserProfile', async () => {
-  
-  const user = await Auth.currentAuthenticatedUser();
-
-  const result = await API.graphql(
-    graphqlOperation(getUser, { owner: user.attributes.sub })
-  );
-
-  const profileUserData = {
-    // @ts-ignore
-    id: result.data.getUser.owner,
-    // @ts-ignore
-    name: result.data.getUser.name,
-    // @ts-ignore
-    avatar: result.data.getUser.avatar,
-    // @ts-ignore
-    fullName: result.data.getUser.fullName,
-    // @ts-ignore
-    peerId: result.data.getUser.peerId,
-  }
-  
-  return profileUserData
-})
-
-// ** Fetch Chats & Contacts
-export const fetchChatsContacts = createAsyncThunk(
-  "appChat/fetchChatsContacts",
+export const fetchUserProfile = createAsyncThunk(
+  "appChat/fetchUserProfile",
   async () => {
-
     const user = await Auth.currentAuthenticatedUser();
 
     const result = await API.graphql(
       graphqlOperation(getUser, { owner: user.attributes.sub })
     );
 
-    const userChats = await API.graphql(graphqlOperation(listChats, { owner: user.attributes.sub }));
+    const profileUserData = result.data.getUser;
+
+    return profileUserData;
+  }
+);
+
+// ** Fetch Chats & Contacts
+export const fetchChatsContacts = createAsyncThunk(
+  "appChat/fetchChatsContacts",
+  async () => {
+    const user = await Auth.currentAuthenticatedUser();
+
+    const result = await API.graphql(
+      graphqlOperation(getUser, { owner: user.attributes.sub })
+    );
 
     // @ts-ignore
-    if(!userChats.data.listChats.items.length > 0) {
-      console.log("no chats")
+    const userChats = await API.graphql(
+      graphqlOperation(listChats, {
+        owners: user.attributes.sub,
+        filter: {
+          or: [
+            { senderId: { eq: user.attributes.sub } },
+            { userId: { eq: user.attributes.sub } },
+          ],
+        },
+      })
+    );
 
+    // @ts-ignore
+    if (!userChats.data.listChats.items.length > 0) {
       const newChat = {
+        senderId: user.attributes.sub,
         userId: user.attributes.sub,
         unseenMsgs: 0,
         chat: JSON.stringify([
           {
             message: "This is your Notebook!",
-            time: 'Mon Dec 10 2018 07:45:00 GMT+0000 (GMT)',
+            time: "Mon Dec 10 2018 07:45:00 GMT+0000 (GMT)",
             senderId: user.attributes.sub,
             feedback: {
               isSent: true,
               isDelivered: true,
-              isSeen: true
-            }
+              isSeen: true,
+            },
           },
           {
             message: "You can save notes here!",
-            time: 'Mon Dec 10 2018 07:45:00 GMT+0000 (GMT)',
+            time: "Mon Dec 10 2018 07:45:00 GMT+0000 (GMT)",
             senderId: user.attributes.sub,
             feedback: {
               isSent: true,
               isDelivered: true,
-              isSeen: true
-            }
+              isSeen: true,
+            },
           },
         ]),
+        owners: [user.attributes.sub, user.attributes.sub],
       };
 
       await API.graphql(graphqlOperation(createChat, { input: newChat }));
     }
 
-    //@ts-ignore
-    if(!result.data.getUser.contacts) {
-
-      const updatedUser = {
-        owner: user.attributes.sub,
-        email: user.attributes.email,
-        contacts: JSON.stringify([
-          {
-            // @ts-ignore
-            id: result.data.getUser.owner,
-            // @ts-ignore
-            fullName: result.data.getUser.fullName,
-            // @ts-ignore
-            role: result.data.getUser.role,
-            // @ts-ignore
-            about: result.data.getUser.about,
-            // @ts-ignore
-            avatar: result.data.getUser.avatar,
-            // @ts-ignore
-            status: result.data.getUser.status,
-          }
-        ])
-      };
-
-      await API.graphql(
-        graphqlOperation(updateUser, { input: updatedUser })
-      );
-      
-    }
+    // @ts-ignore
+    const parsedChat = userChats.data.listChats.items;
 
     // @ts-ignore
-    const parsedChat = userChats.data.listChats.items
+    const parsedContacts = result.data.getUser.contacts.items;
 
-    // @ts-ignore
-    const parsedContacts = JSON.parse(result.data.getUser.contacts);
-
-    //@ts-ignore
-    const chatsContacts = parsedChat.map((chat: ChatsObj) => {
-      //@ts-ignore
-      const contact = parsedContacts.find(
-        (c: ContactType) => c.id === chat.userId
+    const filteredContacts = parsedContacts.filter((contact: Friendship) => {
+      return (
+        contact.owners.includes(user.attributes.sub) &&
+        contact.status === FriendshipStatus.PENDING
       );
-  
-      // @ts-ignore
-      contact.chat = {
-        id: chat.userId,
-        unseenMsgs: chat.unseenMsgs,
-        //@ts-ignore
-        lastMessage: JSON.parse(chat.chat[chat.chat.length - 1]),
-      };
-  
-      return contact;
     });
-  
-    //@ts-ignore
-    const contactsToShow = parsedContacts.filter((co: ContactType) => {
-      //@ts-ignore
-      return !parsedChat.some((ch: ChatsObj) => {
-        return co.id === ch.id;
+
+    const finalContacts = filteredContacts.map((contact: Friendship) => {
+      return contact.contact;
+    });
+
+    const filteredChats = parsedChat.filter((chat: Chat) => {
+      return chat.owners.includes(user.attributes.sub);
+    });
+
+    const chatsWithContacts = filteredChats.map((chat: Chat) => {
+      // Find the contact that corresponds to the current chat
+
+      const contact = finalContacts.find((c: User) => {
+        return c.owner === chat.senderId || c.owner === chat.userId;
       });
+
+      //@ts-ignore
+      chat.lastMessage = JSON.parse(chat.chat)[
+        //@ts-ignore
+        JSON.parse(chat.chat).length - 1
+      ];
+
+      if (contact !== undefined) {
+        contact.chat = { ...chat };
+
+        return contact;
+      }
     });
 
-    const profileUserData = {
-      // @ts-ignore
-      id: result.data.getUser.owner,
-      // @ts-ignore
-      name: result.data.getUser.name,
-      // @ts-ignore
-      avatar: result.data.getUser.avatar,
-      // @ts-ignore
-      fullName: result.data.getUser.fullName,
-    }
-
-    return {chatsContacts, contacts: contactsToShow, profileUser: profileUserData};
-    
+    return {
+      chatsContacts: chatsWithContacts,
+      contacts: finalContacts,
+      profileUser: result.data.getUser,
+    };
   }
 );
 
 // ** Select Chat
 export const selectChat = createAsyncThunk(
   "appChat/selectChat",
-  async (id: number | string, { dispatch }: { dispatch: Dispatch<any> }) => {
+  async (obj: Array<any>, { dispatch }: { dispatch: Dispatch<any> }) => {
+    console.log("CHAT ID: ", obj[0]);
+    console.log("USER ID: ", obj[1]);
 
-    const user = await Auth.currentAuthenticatedUser();
-
-    const result = await API.graphql(
-      graphqlOperation(getUser, { owner: user.attributes.sub })
+    const userChats = await API.graphql(
+      graphqlOperation(getChat, { id: obj[0] })
     );
 
-    // //  Convert Id to number
-    
     // @ts-ignore
-    const parsedChat = result.data.getUser.chats.items
-    // @ts-ignore
-    const parsedContacts = JSON.parse(result.data.getUser.contacts);
+    const chat = userChats.data.getChat;
 
-    const chat = parsedChat.find((c: ChatsObj) => c.userId === id);
+    const contact = await API.graphql(
+      graphqlOperation(getUser, { owner: obj[1] })
+    );
+
+    const contactData = {
+      ...contact.data.getUser,
+    };
 
     //TODO: Update unseenMsgs to 0
     // if (chat) chat.unseenMsgs = 0;
-
-    const contact = parsedContacts.find((c: ContactType) => c.id === id);
 
     // @ts-ignore
     // TODO: Update unseenMsgs to 0
@@ -197,8 +177,7 @@ export const selectChat = createAsyncThunk(
 
     dispatch(fetchChatsContacts());
 
-    return { chat, contact };
-
+    return { chat: chat, contact: contactData };
   }
 );
 
@@ -206,32 +185,16 @@ export const selectChat = createAsyncThunk(
 export const sendMsg = createAsyncThunk(
   "appChat/sendMsg",
   async (obj: SendMsgParamsType, { dispatch }) => {
-
-    // OBJ = chat, contact, msg
+    console.log("SEND MSG");
+    console.log(obj);
 
     const user = await Auth.currentAuthenticatedUser();
 
-    const result = await API.graphql(
-      graphqlOperation(getUser, { owner: user.attributes.sub })
-    );
-
-    // @ts-ignore
-    const userChats = await API.graphql(graphqlOperation(listChats, { owner: user.attributes.sub }));
-
-    // @ts-ignore
-    const parsedChat = userChats.data.listChats.items;
-
-    console.log(parsedChat)
-
-    console.log(obj.contact?.id)
-
-    let activeChat = parsedChat.find(
-      (chat: ChatsObj) => chat.userId === obj.contact?.id
-    );
+    let activeChat = obj.chat;
 
     const newMessageData = {
       // @ts-ignore
-      senderId: result.data.getUser.owner,
+      senderId: user.attributes.sub,
       time: new Date("Mon Dec 11 2018 07:46:15 GMT+0000 (GMT)"),
       message: obj.message,
       feedback: {
@@ -244,59 +207,86 @@ export const sendMsg = createAsyncThunk(
     // If there's new chat for user create one
     let isNewChat = false;
 
-    if (activeChat === undefined) {
+    if (activeChat === null) {
       isNewChat = true;
+      console.log("NEW CHAT");
 
-      console.log("new chat")
+      console.log(user.attributes.sub);
+      //@ts-ignore
+      console.log(obj.contact.owner);
 
-      //TODO: Create new chat
-
-      parsedChat.push({
-        id: obj.contact?.id,
-        userId: obj.contact?.id,
+      const newChat: CreateChatInput = {
+        senderId: user.attributes.sub,
+        //@ts-ignore
+        userId: obj.contact.owner,
         unseenMsgs: 0,
-        chat: [newMessageData],
+        //@ts-ignore
+        chat: JSON.stringify([newMessageData]),
+        //@ts-ignore
+        owners: [user.attributes.sub, obj.contact.owner],
+      };
+
+      const newChatData = await API.graphql(
+        graphqlOperation(createChat, { input: newChat })
+        //@ts-ignore
+      ).catch((err) => {
+        console.log(err);
       });
 
-      // await API.graphql(
-      //   graphqlOperation(updateUser, { input: {
-      //     owner: user.attributes.sub,
-      //     email: user.attributes.email,
-      //     chats: JSON.stringify(parsedChat)
-      //   } })
-      // );
-      
-      activeChat = parsedChat[parsedChat.length - 1];
+      console.log(newChatData);
+
+      //@ts-ignore
+      await dispatch(selectChat([newChat.data.createChat.id, obj.contact?.id]));
+
+      //set active chat
+      //@ts-ignore
+      activeChat = newChat.data.createChat;
     } else {
+      console.log("CHAT EXIST");
 
-      const parsedActive = JSON.parse(activeChat.chat)
+      //@ts-ignore
+      const parsedActive = JSON.parse(activeChat?.chat);
 
-      parsedActive.push(newMessageData)
+      console.log(parsedActive);
 
-      await API.graphql(
-        graphqlOperation(updateChat, { input: {
-          id: activeChat.id,
-          userId: user.attributes.sub,
-          chat: JSON.stringify(parsedActive)
-        } })
-      );
+      parsedActive.push(newMessageData);
 
+      const newInput = {
+        input: {
+          id: obj.chat?.id,
+          senderId: user.attributes.sub,
+          //@ts-ignore
+          userId: obj.contact?.owner,
+          chat: JSON.stringify(parsedActive),
+          //@ts-ignore
+          owners: [user.attributes.sub, obj.contact?.owner],
+        },
+      };
+
+      console.log(newInput);
+
+      await API.graphql(graphqlOperation(updateChat, newInput))
+        //@ts-ignore
+        .catch((err) => {
+          console.log(err);
+        });
     }
 
-    const response = { newMessageData, id: obj.contact?.id };
+    //@ts-ignore
+    const response = { newMessageData, id: obj.contact?.owner };
 
-    // if (isNewChat) { 
-    //   response.chat = activeChat; 
+    // if (isNewChat) {
+    //   response.chat = activeChat;
     // }
 
     if (obj.contact) {
-      await dispatch(selectChat(obj.contact.id));
+      //@ts-ignore
+      await dispatch(selectChat([activeChat?.id, obj.contact.owner]));
     }
 
     dispatch(fetchChatsContacts());
 
-    return { response }
-
+    return { response };
   }
 );
 
@@ -316,7 +306,7 @@ export const appChatSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(fetchUserProfile.fulfilled, (state, action) => {
       // @ts-ignore
-      state.userProfile = action.payload
+      state.userProfile = action.payload;
     });
     builder.addCase(fetchChatsContacts.fulfilled, (state, action) => {
       state.contacts = action.payload.contacts;

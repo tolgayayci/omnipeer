@@ -7,7 +7,7 @@ import { webSockets } from "@libp2p/websockets";
 import { webRTCStar } from "@libp2p/webrtc-star";
 import { Noise } from "@chainsafe/libp2p-noise";
 import { mplex } from "@libp2p/mplex";
-import { gossipsub } from "@chainsafe/libp2p-gossipsub"
+import { gossipsub } from "@chainsafe/libp2p-gossipsub";
 
 import type { PeerId } from "@libp2p/interface-peer-id";
 
@@ -17,14 +17,16 @@ interface NodeState {
   remotePeerIds: PeerId[] | null;
   remotePeerIdAsString: string | null;
   files: File[] | null;
+  fileDetails: String[] | null;
 }
 
 const initialState: NodeState = {
   node: null,
   peerId: null,
-  remotePeerIds: null,
+  remotePeerIds: [],
   remotePeerIdAsString: "",
   files: [],
+  fileDetails: [],
 };
 
 export const createNode = createAsyncThunk("node/createNode", async () => {
@@ -72,10 +74,13 @@ export const nodeSlice = createSlice({
       state.remotePeerIds = action.payload;
     },
     setRemotePeerIdAsString: (state, action) => {
-      state.remotePeerIds = action.payload;
+      state.remotePeerIdAsString = action.payload;
     },
     setFiles: (state, action) => {
       state.files = action.payload;
+    },
+    setFileDetails: (state, action) => {
+      state.fileDetails = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -88,8 +93,12 @@ export const nodeSlice = createSlice({
   },
 });
 
-export const { setRemotePeerIds, setRemotePeerIdAsString, setFiles } =
-  nodeSlice.actions;
+export const {
+  setRemotePeerIds,
+  setRemotePeerIdAsString,
+  setFiles,
+  setFileDetails,
+} = nodeSlice.actions;
 
 export const node = (state: RootState) => state.node.node;
 

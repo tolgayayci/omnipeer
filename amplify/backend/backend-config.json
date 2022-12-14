@@ -20,7 +20,19 @@
               "userPoolId": "authomnipeer53799b07"
             }
           },
-          "additionalAuthenticationProviders": []
+          "additionalAuthenticationProviders": [
+            {
+              "authenticationType": "API_KEY",
+              "apiKeyConfig": {
+                "apiKeyExpirationDays": 60,
+                "apiKeyExpirationDate": "2023-01-26T19:27:21.887Z",
+                "description": "peerIdApi"
+              }
+            },
+            {
+              "authenticationType": "AWS_IAM"
+            }
+          ]
         }
       }
     }

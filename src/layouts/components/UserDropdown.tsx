@@ -28,6 +28,11 @@ import { Settings } from "src/@core/context/settingsContext";
 
 import { Auth } from "aws-amplify";
 
+import EditProfile from "src/components/profile/EditProfile";
+import AddFriends from "src/components/friendship/AddFriends";
+
+import { useAppSelector } from "src/store/hooks";
+
 interface Props {
   settings: Settings;
 }
@@ -47,7 +52,9 @@ const UserDropdown = (props: Props) => {
 
   // ** States
   const [anchorEl, setAnchorEl] = useState<Element | null>(null);
-  const [user, setUser] = useState<any>(null);
+  const [isUserEditModalVisible, setIsUserEditModalVisible] = useState(false);
+  const [isFriendshipModalVisible, setIsFriendshipModalVisible] = useState(false)
+  const user = useAppSelector((state) => state.user);
 
   // ** Hooks
   const router = useRouter();
@@ -65,6 +72,7 @@ const UserDropdown = (props: Props) => {
     }
     setAnchorEl(null);
   };
+
 
   const styles = {
     py: 2,
@@ -133,8 +141,8 @@ const UserDropdown = (props: Props) => {
               }}
             >
               <Avatar
-                alt="John Doe"
-                src="/images/avatars/1.png"
+                alt={user.fullName?.toString()}
+                src={user.avatar?.toString()}
                 sx={{ width: "2.5rem", height: "2.5rem" }}
               />
             </Badge>
@@ -146,46 +154,27 @@ const UserDropdown = (props: Props) => {
                 flexDirection: "column",
               }}
             >
-              <Typography sx={{ fontWeight: 600 }}>John Doe</Typography>
+              <Typography sx={{ fontWeight: 600 }}>{user.fullName}</Typography>
               <Typography
                 variant="body2"
                 sx={{ fontSize: "0.8rem", color: "text.disabled" }}
               >
-                Admin
+                {user.email}
               </Typography>
             </Box>
           </Box>
         </Box>
         <Divider sx={{ mt: 0, mb: 1 }} />
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
+        <MenuItem sx={{ p: 0 }} onClick={() => setIsUserEditModalVisible(true)}>
           <Box sx={styles}>
             <AccountOutline sx={{ marginRight: 2 }} />
-            Profile
+            Edit Profile
           </Box>
         </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
+        <MenuItem sx={{ p: 0 }} onClick={() => setIsFriendshipModalVisible(true)}>
           <Box sx={styles}>
-            <EmailOutline sx={{ marginRight: 2 }} />
-            Inbox
-          </Box>
-        </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
-          <Box sx={styles}>
-            <MessageOutline sx={{ marginRight: 2 }} />
-            Chat
-          </Box>
-        </MenuItem>
-        <Divider />
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
-          <Box sx={styles}>
-            <CogOutline sx={{ marginRight: 2 }} />
-            Settings
-          </Box>
-        </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
-          <Box sx={styles}>
-            <CurrencyUsd sx={{ marginRight: 2 }} />
-            Pricing
+            <AccountOutline sx={{ marginRight: 2 }} />
+            Add Friend
           </Box>
         </MenuItem>
         <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
@@ -206,6 +195,8 @@ const UserDropdown = (props: Props) => {
           Logout
         </MenuItem>
       </Menu>
+      <EditProfile show={isUserEditModalVisible} />
+      <AddFriends show={isFriendshipModalVisible} />
     </Fragment>
   );
 };

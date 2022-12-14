@@ -9,39 +9,55 @@ type Storage @model @auth(rules: [{ allow: owner, operations: [create, read] }])
   size: Int!
 }
 
-enum StorageType {
-  pending
-  done
-  cancelled
-}
-
-type Stream @model @auth(rules: [{ allow: owner, operations: [create, read, update] }]){
-  ownerPeerId: String! @primaryKey
-  remotePeerId: String!
-  name: String!
-  type: String!
-  size: Int!
-  status: StorageType!
-  statusDetails: AWSJSON!
-}
-
-type User @model @auth(rules: [{ allow: owner, operations: [create, read, update] }]){
+type User @model @auth(rules: [
+  { allow: owner, operations: [create, read, update] },
+  { allow: private, operations: [read] }
+]
+){
   owner: String! @primaryKey
-  email: AWSEmail!
+  email: AWSEmail! @index(name: "byEmail", queryField: "userByEmail")
   peerId: String
   fullName: String
   about: String
   role: String
   nickname: String
   avatar: AWSURL
-  contacts: [AWSJSON]
-  chats: [Chat] @hasMany(indexName: "byOwner", fields: ["owner"])
+  chats: [Chat] @hasMany(indexName: "byUserId", fields: ["owner"])
+  friends: [Friendship] @hasMany(indexName: "friendByUserId", fields: ["owner"])
+  storage: [Storage] @hasMany
 }
 
-type Chat @model @auth(rules: [{ allow: owner, operations: [create, read, update] }]){
+type Chat 
+@model (subscriptions: { level: public }) 
+@auth(rules: 
+  [
+    { allow: owner, operations: [create, read, update], ownerField: "owners" },
+  ]){
   id: ID! @primaryKey
-  userId: String! @index(name: "byOwner")
+  senderId: String!
+  userId: String! @index(name: "byUserId", queryField: "chatsByUserId")
   unseenMsgs: Int!
   chat: [AWSJSON]
+  owners: [String!]! 
 }
 
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  BLOCKED
+}
+
+type Friendship 
+@model 
+@auth(rules: 
+  [
+    { allow: owner, operations: [create, read, update], ownerField: "owners" }  
+  ]
+){
+  id: ID! @primaryKey
+  contactId: String! @index(name: "friendByUserId", queryField: "friendsByUserId")
+  contact: User @belongsTo(fields: ["contactId"])
+  status: FriendshipStatus!
+  owners: [String!]!
+}

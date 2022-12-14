@@ -60,17 +60,23 @@ const ChatLog = (props: ChatLogType) => {
   // ** Formats chat data based on sender
   const formattedChatData = () => {
     let chatLog: MessageType[] | [] = [];
+
     if (data.chat) {
       // @ts-ignore
       chatLog = JSON.parse(data.chat.chat);
     }
 
     const formattedChatLog: FormattedChatsType[] = [];
-    let chatMessageSenderId = chatLog[0] ? chatLog[0].senderId : 11;
+    let chatMessageSenderId = chatLog[0]
+      ? chatLog[0].senderId
+      : // @ts-ignore
+        data.userContact.owner;
+
     let msgGroup: MessageGroupType = {
       senderId: chatMessageSenderId,
       messages: [],
     };
+
     chatLog.forEach((msg: MessageType, index: number) => {
       if (chatMessageSenderId === msg.senderId) {
         msgGroup.messages.push({
@@ -123,9 +129,10 @@ const ChatLog = (props: ChatLogType) => {
   };
 
   useEffect(() => {
-    if (data && data.chat && data.chat.chat.length) {
+    if (data && data.chat) {
       scrollToBottom();
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
@@ -133,7 +140,8 @@ const ChatLog = (props: ChatLogType) => {
   const renderChats = () => {
     return formattedChatData().map(
       (item: FormattedChatsType, index: number) => {
-        const isSender = item.senderId === data.userContact.id;
+        // @ts-ignore
+        const isSender = item.senderId === data.userContact.owner;
 
         return (
           <Box
@@ -182,69 +190,70 @@ const ChatLog = (props: ChatLogType) => {
               className="chat-body"
               sx={{ maxWidth: ["calc(100% - 5.75rem)", "75%", "65%"] }}
             >
-              {item.messages.map(
-                (
-                  chat: ChatLogChatType,
-                  index: number,
-                  { length }: { length: number }
-                ) => {
-                  const time = new Date(chat.time);
+              {data &&
+                item.messages.map(
+                  (
+                    chat: ChatLogChatType,
+                    index: number,
+                    { length }: { length: number }
+                  ) => {
+                    const time = new Date(chat.time);
 
-                  return (
-                    <Box
-                      key={index}
-                      sx={{ "&:not(:last-of-type)": { mb: 3.5 } }}
-                    >
-                      <Box>
-                        <Typography
-                          sx={{
-                            boxShadow: 1,
-                            borderRadius: 1,
-                            width: "fit-content",
-                            fontSize: "0.875rem",
-                            p: (theme) => theme.spacing(3, 4),
-                            ml: isSender ? "auto" : undefined,
-                            borderTopLeftRadius: !isSender ? 0 : undefined,
-                            borderTopRightRadius: isSender ? 0 : undefined,
-                            color: isSender ? "common.white" : "text.primary",
-                            backgroundColor: isSender
-                              ? "primary.main"
-                              : "background.paper",
-                          }}
-                        >
-                          {chat.msg}
-                        </Typography>
-                      </Box>
-                      {index + 1 === length ? (
-                        <Box
-                          sx={{
-                            mt: 1,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: isSender
-                              ? "flex-end"
-                              : "flex-start",
-                          }}
-                        >
-                          {renderMsgFeedback(isSender, chat.feedback)}
+                    return (
+                      <Box
+                        key={index}
+                        sx={{ "&:not(:last-of-type)": { mb: 3.5 } }}
+                      >
+                        <Box>
                           <Typography
-                            variant="caption"
-                            sx={{ color: "text.disabled" }}
+                            sx={{
+                              boxShadow: 1,
+                              borderRadius: 1,
+                              width: "fit-content",
+                              fontSize: "0.875rem",
+                              p: (theme) => theme.spacing(3, 4),
+                              ml: isSender ? "auto" : undefined,
+                              borderTopLeftRadius: !isSender ? 0 : undefined,
+                              borderTopRightRadius: isSender ? 0 : undefined,
+                              color: isSender ? "common.white" : "text.primary",
+                              backgroundColor: isSender
+                                ? "primary.main"
+                                : "background.paper",
+                            }}
                           >
-                            {time
-                              ? new Date(time).toLocaleString("en-US", {
-                                  hour: "numeric",
-                                  minute: "numeric",
-                                  hour12: true,
-                                })
-                              : null}
+                            {chat.msg}
                           </Typography>
                         </Box>
-                      ) : null}
-                    </Box>
-                  );
-                }
-              )}
+                        {index + 1 === length ? (
+                          <Box
+                            sx={{
+                              mt: 1,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: isSender
+                                ? "flex-end"
+                                : "flex-start",
+                            }}
+                          >
+                            {renderMsgFeedback(isSender, chat.feedback)}
+                            <Typography
+                              variant="caption"
+                              sx={{ color: "text.disabled" }}
+                            >
+                              {time
+                                ? new Date(time).toLocaleString("en-US", {
+                                    hour: "numeric",
+                                    minute: "numeric",
+                                    hour12: true,
+                                  })
+                                : null}
+                            </Typography>
+                          </Box>
+                        ) : null}
+                      </Box>
+                    );
+                  }
+                )}
             </Box>
           </Box>
         );

@@ -1,6 +1,7 @@
 // ** Redux Imports
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "src/store";
+import { Dispatch } from "redux";
 
 // ** Amplify Imports
 import { API, Auth, graphqlOperation } from "aws-amplify";
@@ -33,10 +34,16 @@ export const getUserInfo = createAsyncThunk("user/getUser", async () => {
 export const updateUserInfo = createAsyncThunk(
   "user/updateUser",
   // TODO: Add type for user and queries
-  async (peerId: string) => {
+  async (peerId: string, { dispatch }: { dispatch: Dispatch<any> }) => {
+    dispatch(getUserInfo());
+
     const user = await Auth.currentAuthenticatedUser();
 
-    const updatedUser = {
+    const result = await API.graphql(
+      graphqlOperation(getUser, { owner: user.attributes.sub })
+    );
+
+    const updatedUser: UpdateUserInput = {
       owner: user.attributes.sub,
       email: user.attributes.email,
       peerId: peerId,
@@ -44,7 +51,6 @@ export const updateUserInfo = createAsyncThunk(
 
     await API.graphql(graphqlOperation(updateUser, { input: updatedUser }));
   }
-  
 );
 
 const initialState: User = {

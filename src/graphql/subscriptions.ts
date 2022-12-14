@@ -2,96 +2,105 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
+export const onCreateChat = /* GraphQL */ `
+  subscription OnCreateChat($filter: ModelSubscriptionChatFilterInput) {
+    onCreateChat(filter: $filter) {
+      id
+      senderId
+      userId
+      unseenMsgs
+      chat
+      owners
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onUpdateChat = /* GraphQL */ `
+  subscription OnUpdateChat($filter: ModelSubscriptionChatFilterInput) {
+    onUpdateChat(filter: $filter) {
+      id
+      senderId
+      userId
+      unseenMsgs
+      chat
+      owners
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onDeleteChat = /* GraphQL */ `
+  subscription OnDeleteChat($filter: ModelSubscriptionChatFilterInput) {
+    onDeleteChat(filter: $filter) {
+      id
+      senderId
+      userId
+      unseenMsgs
+      chat
+      owners
+      createdAt
+      updatedAt
+    }
+  }
+`;
 export const onCreateStorage = /* GraphQL */ `
-  subscription OnCreateStorage($owner: String) {
-    onCreateStorage(owner: $owner) {
+  subscription OnCreateStorage(
+    $filter: ModelSubscriptionStorageFilterInput
+    $owner: String
+  ) {
+    onCreateStorage(filter: $filter, owner: $owner) {
       cid
       name
       type
       size
       createdAt
       updatedAt
+      userStorageId
       owner
     }
   }
 `;
 export const onUpdateStorage = /* GraphQL */ `
-  subscription OnUpdateStorage($owner: String) {
-    onUpdateStorage(owner: $owner) {
+  subscription OnUpdateStorage(
+    $filter: ModelSubscriptionStorageFilterInput
+    $owner: String
+  ) {
+    onUpdateStorage(filter: $filter, owner: $owner) {
       cid
       name
       type
       size
       createdAt
       updatedAt
+      userStorageId
       owner
     }
   }
 `;
 export const onDeleteStorage = /* GraphQL */ `
-  subscription OnDeleteStorage($owner: String) {
-    onDeleteStorage(owner: $owner) {
+  subscription OnDeleteStorage(
+    $filter: ModelSubscriptionStorageFilterInput
+    $owner: String
+  ) {
+    onDeleteStorage(filter: $filter, owner: $owner) {
       cid
       name
       type
       size
       createdAt
       updatedAt
-      owner
-    }
-  }
-`;
-export const onCreateStream = /* GraphQL */ `
-  subscription OnCreateStream($owner: String) {
-    onCreateStream(owner: $owner) {
-      ownerPeerId
-      remotePeerId
-      name
-      type
-      size
-      status
-      statusDetails
-      createdAt
-      updatedAt
-      owner
-    }
-  }
-`;
-export const onUpdateStream = /* GraphQL */ `
-  subscription OnUpdateStream($owner: String) {
-    onUpdateStream(owner: $owner) {
-      ownerPeerId
-      remotePeerId
-      name
-      type
-      size
-      status
-      statusDetails
-      createdAt
-      updatedAt
-      owner
-    }
-  }
-`;
-export const onDeleteStream = /* GraphQL */ `
-  subscription OnDeleteStream($owner: String) {
-    onDeleteStream(owner: $owner) {
-      ownerPeerId
-      remotePeerId
-      name
-      type
-      size
-      status
-      statusDetails
-      createdAt
-      updatedAt
+      userStorageId
       owner
     }
   }
 `;
 export const onCreateUser = /* GraphQL */ `
-  subscription OnCreateUser($owner: String) {
-    onCreateUser(owner: $owner) {
+  subscription OnCreateUser(
+    $filter: ModelSubscriptionUserFilterInput
+    $owner: String
+  ) {
+    onCreateUser(filter: $filter, owner: $owner) {
       owner
       email
       peerId
@@ -100,15 +109,51 @@ export const onCreateUser = /* GraphQL */ `
       role
       nickname
       avatar
-      contacts
       chats {
         items {
           id
+          senderId
           userId
           unseenMsgs
           chat
+          owners
           createdAt
           updatedAt
+        }
+        nextToken
+      }
+      friends {
+        items {
+          id
+          contactId
+          contact {
+            owner
+            email
+            peerId
+            fullName
+            about
+            role
+            nickname
+            avatar
+            createdAt
+            updatedAt
+          }
+          status
+          owners
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      storage {
+        items {
+          cid
+          name
+          type
+          size
+          createdAt
+          updatedAt
+          userStorageId
           owner
         }
         nextToken
@@ -119,8 +164,11 @@ export const onCreateUser = /* GraphQL */ `
   }
 `;
 export const onUpdateUser = /* GraphQL */ `
-  subscription OnUpdateUser($owner: String) {
-    onUpdateUser(owner: $owner) {
+  subscription OnUpdateUser(
+    $filter: ModelSubscriptionUserFilterInput
+    $owner: String
+  ) {
+    onUpdateUser(filter: $filter, owner: $owner) {
       owner
       email
       peerId
@@ -129,15 +177,51 @@ export const onUpdateUser = /* GraphQL */ `
       role
       nickname
       avatar
-      contacts
       chats {
         items {
           id
+          senderId
           userId
           unseenMsgs
           chat
+          owners
           createdAt
           updatedAt
+        }
+        nextToken
+      }
+      friends {
+        items {
+          id
+          contactId
+          contact {
+            owner
+            email
+            peerId
+            fullName
+            about
+            role
+            nickname
+            avatar
+            createdAt
+            updatedAt
+          }
+          status
+          owners
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      storage {
+        items {
+          cid
+          name
+          type
+          size
+          createdAt
+          updatedAt
+          userStorageId
           owner
         }
         nextToken
@@ -148,8 +232,11 @@ export const onUpdateUser = /* GraphQL */ `
   }
 `;
 export const onDeleteUser = /* GraphQL */ `
-  subscription OnDeleteUser($owner: String) {
-    onDeleteUser(owner: $owner) {
+  subscription OnDeleteUser(
+    $filter: ModelSubscriptionUserFilterInput
+    $owner: String
+  ) {
+    onDeleteUser(filter: $filter, owner: $owner) {
       owner
       email
       peerId
@@ -158,15 +245,51 @@ export const onDeleteUser = /* GraphQL */ `
       role
       nickname
       avatar
-      contacts
       chats {
         items {
           id
+          senderId
           userId
           unseenMsgs
           chat
+          owners
           createdAt
           updatedAt
+        }
+        nextToken
+      }
+      friends {
+        items {
+          id
+          contactId
+          contact {
+            owner
+            email
+            peerId
+            fullName
+            about
+            role
+            nickname
+            avatar
+            createdAt
+            updatedAt
+          }
+          status
+          owners
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      storage {
+        items {
+          cid
+          name
+          type
+          size
+          createdAt
+          updatedAt
+          userStorageId
           owner
         }
         nextToken
@@ -176,42 +299,192 @@ export const onDeleteUser = /* GraphQL */ `
     }
   }
 `;
-export const onCreateChat = /* GraphQL */ `
-  subscription OnCreateChat($owner: String) {
-    onCreateChat(owner: $owner) {
+export const onCreateFriendship = /* GraphQL */ `
+  subscription OnCreateFriendship(
+    $filter: ModelSubscriptionFriendshipFilterInput
+  ) {
+    onCreateFriendship(filter: $filter) {
       id
-      userId
-      unseenMsgs
-      chat
+      contactId
+      contact {
+        owner
+        email
+        peerId
+        fullName
+        about
+        role
+        nickname
+        avatar
+        chats {
+          items {
+            id
+            senderId
+            userId
+            unseenMsgs
+            chat
+            owners
+            createdAt
+            updatedAt
+          }
+          nextToken
+        }
+        friends {
+          items {
+            id
+            contactId
+            status
+            owners
+            createdAt
+            updatedAt
+          }
+          nextToken
+        }
+        storage {
+          items {
+            cid
+            name
+            type
+            size
+            createdAt
+            updatedAt
+            userStorageId
+            owner
+          }
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      status
+      owners
       createdAt
       updatedAt
-      owner
     }
   }
 `;
-export const onUpdateChat = /* GraphQL */ `
-  subscription OnUpdateChat($owner: String) {
-    onUpdateChat(owner: $owner) {
+export const onUpdateFriendship = /* GraphQL */ `
+  subscription OnUpdateFriendship(
+    $filter: ModelSubscriptionFriendshipFilterInput
+  ) {
+    onUpdateFriendship(filter: $filter) {
       id
-      userId
-      unseenMsgs
-      chat
+      contactId
+      contact {
+        owner
+        email
+        peerId
+        fullName
+        about
+        role
+        nickname
+        avatar
+        chats {
+          items {
+            id
+            senderId
+            userId
+            unseenMsgs
+            chat
+            owners
+            createdAt
+            updatedAt
+          }
+          nextToken
+        }
+        friends {
+          items {
+            id
+            contactId
+            status
+            owners
+            createdAt
+            updatedAt
+          }
+          nextToken
+        }
+        storage {
+          items {
+            cid
+            name
+            type
+            size
+            createdAt
+            updatedAt
+            userStorageId
+            owner
+          }
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      status
+      owners
       createdAt
       updatedAt
-      owner
     }
   }
 `;
-export const onDeleteChat = /* GraphQL */ `
-  subscription OnDeleteChat($owner: String) {
-    onDeleteChat(owner: $owner) {
+export const onDeleteFriendship = /* GraphQL */ `
+  subscription OnDeleteFriendship(
+    $filter: ModelSubscriptionFriendshipFilterInput
+  ) {
+    onDeleteFriendship(filter: $filter) {
       id
-      userId
-      unseenMsgs
-      chat
+      contactId
+      contact {
+        owner
+        email
+        peerId
+        fullName
+        about
+        role
+        nickname
+        avatar
+        chats {
+          items {
+            id
+            senderId
+            userId
+            unseenMsgs
+            chat
+            owners
+            createdAt
+            updatedAt
+          }
+          nextToken
+        }
+        friends {
+          items {
+            id
+            contactId
+            status
+            owners
+            createdAt
+            updatedAt
+          }
+          nextToken
+        }
+        storage {
+          items {
+            cid
+            name
+            type
+            size
+            createdAt
+            updatedAt
+            userStorageId
+            owner
+          }
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      status
+      owners
       createdAt
       updatedAt
-      owner
     }
   }
 `;
