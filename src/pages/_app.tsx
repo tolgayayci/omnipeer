@@ -55,9 +55,6 @@ import { withAuthenticator } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
 import awsExports from "../aws-exports";
 
-// ** Fake-DB Import
-import "src/@fake-db";
-
 // ** Redux Imports
 import { Provider } from "react-redux";
 import { store } from "src/store";
@@ -71,6 +68,8 @@ import { toString as uint8ArrayToString } from "uint8arrays/to-string";
 import { fromString as uint8ArrayFromString } from "uint8arrays/from-string";
 
 import TransferRequest from "src/components/transfer/TransferRequest";
+
+import type PeerId from "peer-id";
 
 Amplify.configure(awsExports);
 
@@ -100,6 +99,8 @@ const App = (props: ExtendedAppProps) => {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
 
   const [isLoading, setIsLoading] = useState(true);
+  const [isTransferRequest, setIsTransferRequest] = useState(false);
+  const [peerId, setPeerId] = useState<PeerId>();
 
   // Variables
   const getLayout =
@@ -144,12 +145,7 @@ const App = (props: ExtendedAppProps) => {
                     //@ts-ignore
                     store.dispatch(
                       //@ts-ignore
-                      setFileDetails((prev) => [
-                        ...prev,
-                        fileDetailsArray[0],
-                        fileDetailsArray[1],
-                        fileDetailsArray[2],
-                      ])
+                      setFileDetails([fileDetailsArray[0], fileDetailsArray[1], fileDetailsArray[2]])
                     );
                   }
                 })()
@@ -161,14 +157,13 @@ const App = (props: ExtendedAppProps) => {
                     "/send-stream-request/answer",
                   ])
                   .then((stream) => {
-                    console.log("Answer Send");
-                    //TODO: Check the conditions!
-
-                    pipe([uint8ArrayFromString("NO")], stream)
                     
-                    return(
-                      <TransferRequest />
-                    )
+                    //@ts-ignore
+                    setPeerId(connection.remotePeer);
+                    setIsTransferRequest(true);
+
+                    // pipe([uint8ArrayFromString("NO")], stream)
+                    stream.close(); 
                   });
               });
             }
@@ -309,6 +304,7 @@ const App = (props: ExtendedAppProps) => {
                   <ThemeComponent settings={settings}>
                     <WindowWrapper>
                       {getLayout(<Component {...pageProps} />)}
+                      <TransferRequest open={isTransferRequest} peerId={peerId} />
                     </WindowWrapper>
                     <ReactHotToast>
                       <Toaster

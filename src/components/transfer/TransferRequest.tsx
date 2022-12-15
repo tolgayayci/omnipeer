@@ -1,5 +1,5 @@
 // ** React Imports
-import { Ref, useState, forwardRef, ReactElement } from 'react'
+import { Ref, useState, useEffect, forwardRef, ReactElement } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -28,6 +28,18 @@ import MessageOutline from 'mdi-material-ui/MessageOutline'
 import useBgColor from 'src/@core/hooks/useBgColor'
 import { useSettings } from 'src/@core/hooks/useSettings'
 
+import { useAppDispatch, useAppSelector } from 'src/store/hooks'
+import node, { setFileDetails } from 'src/store/apps/node'
+
+// ** Libp2p Imports
+import { pipe } from "it-pipe";
+import { toString as uint8ArrayToString } from "uint8arrays/to-string";
+import { fromString as uint8ArrayFromString } from "uint8arrays/from-string";
+
+import type PeerId from "peer-id";
+import { FormatListChecks, Label } from 'mdi-material-ui'
+import { FormLabel } from '@mui/material'
+
 const Transition = forwardRef(function Transition(
   props: FadeProps & { children?: ReactElement<any, any> },
   ref: Ref<unknown>
@@ -35,7 +47,12 @@ const Transition = forwardRef(function Transition(
   return <Fade ref={ref} {...props} />
 })
 
-const DialogAuthentication = () => {
+interface DialogAuthenticationProps {
+    open: boolean
+    peerId: PeerId | undefined
+}
+
+const DialogAuthentication = (props: DialogAuthenticationProps) => {
   // ** States
   const [show, setShow] = useState<boolean>(false)
   const [authType, setAuthType] = useState<'app' | 'sms'>('app')
@@ -45,6 +62,44 @@ const DialogAuthentication = () => {
   const bgClasses = useBgColor()
   const { settings } = useSettings()
 
+  const nodeStore = useAppSelector((state) => state.node)
+
+  const handleAnswer = (answer: string) => {
+
+    // @ts-ignore
+    nodeStore.node?.dialProtocol(props.peerId,
+        ['/send-stream-request/answer'] 
+    ).then((stream) => {
+
+        console.log("Stream: ", stream)
+
+        if(stream && answer === "YES"){
+            pipe([uint8ArrayFromString("YES")], stream)
+            console.log("Answer Yes");
+        }
+        else{
+            pipe([uint8ArrayFromString("NO")], stream)
+            stream.close()
+        }
+    })
+    .catch((err) => {
+        console.log(err);
+    })
+  }
+
+  // Create a promise to wait user click on the button
+
+  const handleUserClick = (status: boolean) => {
+
+    if(status){
+        handleAnswer("YES")
+    }else{
+        handleAnswer("NO")
+        setShow(false)
+    }
+
+  }
+
   // ** Var
   const { direction } = settings
 
@@ -53,156 +108,29 @@ const DialogAuthentication = () => {
     setAuthType('app')
   }
 
-  const handleAuthDialogClose = () => {
-    if (show) {
-      setShow(false)
-    }
-    setShowAuthDialog(false)
-    if (authType !== 'app') {
-      setTimeout(() => {
-        setAuthType('app')
-      }, 250)
-    }
-  }
+
+  useEffect(() => {
+    setShow(props.open)
+    //@ts-ignore
+  }, [props.open])
 
   const Arrow = direction === 'ltr' ? ChevronRight : ChevronLeft
 
   return (
     <Card>
-      <CardContent sx={{ textAlign: 'center' }}>
-        <LockOutline sx={{ mb: 2, fontSize: '2rem' }} />
-        <Typography variant='h6' sx={{ mb: 4 }}>
-          Two Factor Auth
-        </Typography>
-        <Typography sx={{ mb: 3 }}>Enhance your application security by enabling two factor authentication.</Typography>
-        <Button variant='contained' onClick={() => setShow(true)}>
-          Show
-        </Button>
-      </CardContent>
       <Dialog
         fullWidth
+        maxWidth='md'
+        scroll='body'
         open={show}
-        maxWidth='md'
-        scroll='body'
-        onClose={handleClose}
-        onBackdropClick={handleClose}
+        onClose={() => setShow(false)}
         TransitionComponent={Transition}
-      >
-        <DialogContent sx={{ px: { xs: 8, sm: 15 }, py: { xs: 8, sm: 12.5 }, position: 'relative' }}>
-          <IconButton size='small' onClick={handleClose} sx={{ position: 'absolute', right: '1rem', top: '1rem' }}>
-            <Close />
-          </IconButton>
-
-          <Grid container spacing={6}>
-            <Grid item xs={12}>
-              <Box sx={{ mb: 3, textAlign: 'center' }}>
-                <Typography variant='h5' sx={{ mb: 3, lineHeight: '2rem' }}>
-                  Select Authentication Method
-                </Typography>
-                <Typography variant='body2'>
-                  You also need to select a method by which the proxy authenticates to the directory serve.
-                </Typography>
-              </Box>
-            </Grid>
-            <Grid item xs={12}>
-              <Box
-                onClick={() => setAuthType('app')}
-                sx={{
-                  pt: 4,
-                  pb: 2.75,
-                  px: 7.2,
-                  borderRadius: 1,
-                  cursor: 'pointer',
-                  border: theme =>
-                    `1px solid ${authType === 'app' ? theme.palette.primary.main : theme.palette.secondary.main}`,
-                  ...(authType === 'app'
-                    ? { ...bgClasses.primaryLight }
-                    : {
-                        background: theme =>
-                          `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${theme.palette.secondary.main}`
-                      })
-                }}
-              >
-                <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
-                  <CogOutline sx={{ fontSize: '2.375rem', mr: 5.25 }} />
-                  <Box>
-                    <Typography
-                      variant='h6'
-                      sx={{ mb: 1.25, ...(authType === 'app' ? { color: 'primary.main' } : {}) }}
-                    >
-                      Authenticator Apps
-                    </Typography>
-                    <Typography sx={{ ...(authType === 'app' ? { color: 'primary.main' } : {}) }}>
-                      Get code from an app like Google Authenticator or Microsoft Authenticator.
-                    </Typography>
-                  </Box>
-                </Box>
-              </Box>
-            </Grid>
-            <Grid item xs={12}>
-              <Box
-                onClick={() => setAuthType('sms')}
-                sx={{
-                  pt: 4,
-                  pb: 2.75,
-                  px: 7.2,
-                  borderRadius: 1,
-                  cursor: 'pointer',
-                  border: theme =>
-                    `1px solid ${authType === 'sms' ? theme.palette.primary.main : theme.palette.secondary.main}`,
-                  ...(authType === 'sms'
-                    ? { ...bgClasses.primaryLight }
-                    : {
-                        background: theme =>
-                          `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${theme.palette.secondary.main}`
-                      })
-                }}
-              >
-                <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
-                  <MessageOutline sx={{ fontSize: '2.375rem', mr: 5.25 }} />
-                  <Box>
-                    <Typography
-                      variant='h6'
-                      sx={{ mb: 1.25, ...(authType === 'sms' ? { color: 'primary.main' } : {}) }}
-                    >
-                      SMS
-                    </Typography>
-                    <Typography sx={{ ...(authType === 'sms' ? { color: 'primary.main' } : {}) }}>
-                      We will send a code via SMS if you need to use your backup login method.
-                    </Typography>
-                  </Box>
-                </Box>
-              </Box>
-            </Grid>
-            <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Button
-                variant='contained'
-                endIcon={<Arrow />}
-                onClick={() => {
-                  setShow(false)
-                  setShowAuthDialog(true)
-                }}
-              >
-                Continue
-              </Button>
-            </Grid>
-          </Grid>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog
-        fullWidth
-        maxWidth='md'
-        scroll='body'
-        open={showAuthDialog}
-        onClose={handleAuthDialogClose}
-        TransitionComponent={Transition}
-        onBackdropClick={handleAuthDialogClose}
+        onBackdropClick={() => setShow(false)}
       >
         <DialogContent sx={{ px: { xs: 8, sm: 15 }, py: { xs: 8, sm: 12.5 }, position: 'relative' }}>
           <IconButton
             size='small'
-            onClick={handleAuthDialogClose}
+            onClick={() => setShow(false)}
             sx={{ position: 'absolute', right: '1rem', top: '1rem' }}
           >
             <Close />
@@ -210,64 +138,65 @@ const DialogAuthentication = () => {
 
           <Grid container spacing={6}>
             <Grid item xs={12}>
-              {authType === 'sms' ? (
-                <Box>
-                  <Typography variant='h6'>Verify Your Mobile Number for SMS</Typography>
-                  <Typography variant='body2'>
-                    Enter your mobile phone number with country code and we will send you a verification code.
-                  </Typography>
-                  <TextField fullWidth sx={{ my: 4 }} label='Mobile Number' placeholder='+1 123 456 7890' />
-                  <Grid container spacing={6}>
-                    <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                      <Button variant='outlined' color='secondary' onClick={handleAuthDialogClose} sx={{ mr: 4 }}>
-                        Cancel
-                      </Button>
-                      <Button variant='contained' endIcon={<Arrow />} onClick={handleAuthDialogClose}>
-                        Continue
-                      </Button>
-                    </Grid>
-                  </Grid>
-                </Box>
-              ) : (
                 <Box>
                   <Typography variant='h5' sx={{ mb: 4, textAlign: 'center' }}>
-                    Add Authenticator App
-                  </Typography>
-                  <Typography variant='h6'>Authenticator Apps</Typography>
-                  <Typography variant='body2' sx={{ mb: 4 }}>
-                    Using an authenticator app like Google Authenticator, Microsoft Authenticator, Authy, or 1Password,
-                    scan the QR code. It will generate a 6 digit code for you to enter below.
+                    File Transfer Request
                   </Typography>
 
-                  <Box sx={{ my: 12, display: 'flex', justifyContent: 'center' }}>
-                    <img width={122} height={122} alt='qr-code' src='/images/pages/pixinvent-qr.png' />
-                  </Box>
-
-                  <Alert severity='warning' icon={false} sx={{ mb: 4, '& .MuiAlert-message': { overflow: 'hidden' } }}>
-                    <AlertTitle sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      ASDLKNASDA9AHS678dGhASD78AB
-                    </AlertTitle>
-                    If you having trouble using the QR code, select manual entry on your app
+                  <Alert severity='warning' icon={false} sx={{ mb: 6, '& .MuiAlert-message': { overflow: 'hidden' } }}>
+                    Please review carefully the file details before accepting the request. <br /> If you accept the request, the file will be downloaded to your device.
                   </Alert>
 
-                  <TextField
-                    fullWidth
-                    sx={{ mb: 4 }}
-                    label='Enter Authentication Code'
-                    placeholder='Enter Authentication Code'
-                  />
+                  <Grid item sm={12} xs={12} sx={{mb:6}}>
+                    <TextField
+                        fullWidth
+                        label='Peer ID'
+                        defaultValue={props.peerId?.toString()}
+                        disabled
+                        size='medium'
+                    />
+                  </Grid>
+                  <Grid item sm={12} xs={12} sx={{mb:6}}>
+                    <TextField
+                        fullWidth
+                        label='File Name'
+                        //@ts-ignore
+                        defaultValue={nodeStore.fileDetails[0]}
+                        disabled
+                        size='medium'
+                    />
+                  </Grid>
+                  <Grid item sm={12} xs={12} sx={{mb:6}}>
+                    <TextField
+                        fullWidth
+                        label='File Size'
+                        //@ts-ignore
+                        defaultValue={nodeStore.fileDetails[1] + " KB"}
+                        disabled
+                        size='medium'
+                    />
+                  </Grid>
+                  <Grid item sm={12} xs={12} sx={{mb:6}}>
+                    <TextField
+                        fullWidth
+                        label='File Type'
+                        //@ts-ignore
+                        defaultValue={nodeStore.fileDetails[2]}
+                        disabled
+                        size='medium'
+                    />
+                  </Grid>
                   <Grid container spacing={6}>
-                    <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                      <Button variant='outlined' color='secondary' onClick={handleAuthDialogClose} sx={{ mr: 4 }}>
-                        Cancel
+                    <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center' }}>
+                      <Button variant='outlined' color='secondary' onClick={() => handleUserClick(false)} sx={{ mr: 4 }}>
+                        Reject
                       </Button>
-                      <Button variant='contained' endIcon={<Arrow />} onClick={handleAuthDialogClose}>
-                        Continue
+                      <Button variant='contained' endIcon={<Arrow />} onClick={() => handleUserClick(true)}>
+                        Accept
                       </Button>
                     </Grid>
                   </Grid>
                 </Box>
-              )}
             </Grid>
           </Grid>
         </DialogContent>

@@ -56,7 +56,7 @@ const UploadFile = () => {
   // ** Hooks
   const { getRootProps, getInputProps } = useDropzone({
     maxFiles: 1,
-    maxSize: 100000000,
+    maxSize: 500000000,
     onDrop: (acceptedFiles: File[]) => {
       dispatch(
         setFiles(acceptedFiles.map((file: File) => Object.assign(file)))
