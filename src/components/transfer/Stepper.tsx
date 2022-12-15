@@ -188,7 +188,7 @@ export default function StepperWrapper() {
               ) : (
                 <React.Fragment>
                   <CardContent>
-                    {node ? <FindPeers /> : <FallbackSpinner />}
+                    {node ? <FindPeers step={activeStep} setStep={setActiveStep} /> : <FallbackSpinner />}
                   </CardContent>
 
                   <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>

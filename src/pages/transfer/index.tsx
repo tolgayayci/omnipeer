@@ -9,7 +9,18 @@ import StepperWrapper from "src/components/transfer/Stepper";
 
 const TransferFile = () => {
   return (
-    <Grid container spacing={6}>
+    <Grid 
+      container 
+      spacing={6}
+      display="flex"
+      flexDirection="column"
+      justifyContent="center"
+      alignContent="center"
+      flexWrap="nowrap"
+      sx={{
+        minHeight: "100%"
+      }}
+    >
       <PageHeader
         title={
           <Typography variant="h5">

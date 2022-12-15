@@ -105,7 +105,7 @@ const SidebarLeft = (props: ChatSidebarLeftType) => {
   };
 
   useEffect(() => {
-    if (store && store.chats) {
+    if (store && store.chats && store.chats[0] !== undefined) {
       if (active !== null) {
         if (active.type === "contact" && active.id === store.chats[0].id) {
           setActive({ type: "chat", id: active.id });
@@ -150,7 +150,7 @@ const SidebarLeft = (props: ChatSidebarLeftType) => {
         const arrToMap =
           query.length && filteredChat.length ? filteredChat : store.chats;
 
-        return arrToMap.slice(0, 1).map((chat: ChatsArrType, index: number) => {
+        return arrToMap.map((chat: ChatsArrType, index: number) => {
           const { lastMessage } = chat.chat;
 
           const activeCondition =
@@ -327,7 +327,7 @@ const SidebarLeft = (props: ChatSidebarLeftType) => {
   };
 
   const renderContacts = () => {
-    if (store && store.contacts) {
+    if (store && store.contacts && store.contacts.length) {
       if (query.length && !filteredContacts.length) {
         return (
           <ListItem>

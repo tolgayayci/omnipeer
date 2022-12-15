@@ -42,8 +42,6 @@ const SendMsgForm = (props: SendMsgComponentType) => {
   // ** State
   const [msg, setMsg] = useState<string>("");
   const [isConnected, setIsConnected] = useState<boolean>(false);
-  const [userOnePeerId, setUserOnePeerId] = useState<string>("");
-  const [userTwoPeerId, setUserTwoPeerId] = useState<string>("");
 
   const node = useAppSelector((state) => state.node.node);
 

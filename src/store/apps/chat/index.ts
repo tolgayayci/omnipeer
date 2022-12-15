@@ -12,7 +12,7 @@ import {
   updateChat,
   createFriendship,
 } from "src/graphql/mutations";
-import { getUser, listChats, getChat } from "src/graphql/queries";
+import { getUser, listChats, getChat, listFriendships } from "src/graphql/queries";
 import { ChatsObj, ContactType } from "src/context/chatTypes";
 import {
   CreateChatMutation,
@@ -50,8 +50,28 @@ export const fetchChatsContacts = createAsyncThunk(
       graphqlOperation(getUser, { owner: user.attributes.sub })
     );
 
+    const finalContacts = await API.graphql(graphqlOperation(listFriendships, { 
+      filter: {
+        and: [
+          { contactId: { ne: user.attributes.sub } },
+          { status: { eq: FriendshipStatus.ACCEPTED } },
+          { owners: { contains: user.attributes.sub } }
+        ],
+      }
+    //@ts-ignore
+    })).then(async (result) => {
+
+      return result.data.listFriendships.items.map((friendship: Friendship) => {
+        return friendship.contact;
+      });
+
+    //@ts-ignore
+    }).catch((err) => {
+      console.log("ERROR: ", err);
+    });
+
     // @ts-ignore
-    const userChats = await API.graphql(
+    const chatsWithContacts = await API.graphql(
       graphqlOperation(listChats, {
         owners: user.attributes.sub,
         filter: {
@@ -61,81 +81,39 @@ export const fetchChatsContacts = createAsyncThunk(
           ],
         },
       })
-    );
+    //@ts-ignore
+    ).then((result) => {
 
-    // @ts-ignore
-    if (!userChats.data.listChats.items.length > 0) {
-      const newChat = {
-        senderId: user.attributes.sub,
-        userId: user.attributes.sub,
-        unseenMsgs: 0,
-        chat: JSON.stringify([
-          {
-            message: "This is your Notebook!",
-            time: "Mon Dec 10 2018 07:45:00 GMT+0000 (GMT)",
-            senderId: user.attributes.sub,
-            feedback: {
-              isSent: true,
-              isDelivered: true,
-              isSeen: true,
-            },
-          },
-          {
-            message: "You can save notes here!",
-            time: "Mon Dec 10 2018 07:45:00 GMT+0000 (GMT)",
-            senderId: user.attributes.sub,
-            feedback: {
-              isSent: true,
-              isDelivered: true,
-              isSeen: true,
-            },
-          },
-        ]),
-        owners: [user.attributes.sub, user.attributes.sub],
-      };
+      // @ts-ignore
+      const filteredChats = result.data.listChats.items
 
-      await API.graphql(graphqlOperation(createChat, { input: newChat }));
-    }
-
-    // @ts-ignore
-    const parsedChat = userChats.data.listChats.items;
-
-    // @ts-ignore
-    const parsedContacts = result.data.getUser.contacts.items;
-
-    const filteredContacts = parsedContacts.filter((contact: Friendship) => {
-      return (
-        contact.owners.includes(user.attributes.sub) &&
-        contact.status === FriendshipStatus.PENDING
-      );
-    });
-
-    const finalContacts = filteredContacts.map((contact: Friendship) => {
-      return contact.contact;
-    });
-
-    const filteredChats = parsedChat.filter((chat: Chat) => {
-      return chat.owners.includes(user.attributes.sub);
-    });
-
-    const chatsWithContacts = filteredChats.map((chat: Chat) => {
-      // Find the contact that corresponds to the current chat
-
-      const contact = finalContacts.find((c: User) => {
-        return c.owner === chat.senderId || c.owner === chat.userId;
+      const a = filteredChats.map((chat: Chat) => {
+        // Find the contact that corresponds to the current chat
+  
+        const contact = finalContacts.find((c: User) => {
+          return c.owner === chat.senderId || c.owner === chat.userId;
+        });
+    
+        if (contact !== undefined) {
+  
+          // @ts-ignore
+          chat.lastMessage = JSON.parse(chat.chat)[
+          //@ts-ignore
+          JSON.parse(chat.chat).length - 1
+          ];
+  
+          contact.chat = { ...chat };
+  
+          return contact;
+        }
+  
       });
 
-      //@ts-ignore
-      chat.lastMessage = JSON.parse(chat.chat)[
-        //@ts-ignore
-        JSON.parse(chat.chat).length - 1
-      ];
-
-      if (contact !== undefined) {
-        contact.chat = { ...chat };
-
-        return contact;
-      }
+      return a
+      
+    //@ts-ignore
+    }).catch((err) => {
+        console.log("ERROR: ", err);
     });
 
     return {
@@ -143,6 +121,7 @@ export const fetchChatsContacts = createAsyncThunk(
       contacts: finalContacts,
       profileUser: result.data.getUser,
     };
+
   }
 );
 

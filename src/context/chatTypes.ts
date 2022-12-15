@@ -50,6 +50,7 @@ export type ContactType = {
   fullName: string;
   status: StatusType;
   avatarColor?: ThemeColor;
+  peerId: string;
 };
 
 export type ChatsArrType = {

@@ -1,5 +1,5 @@
 // ** React Imports
-import { useRef, useEffect, Ref, ReactNode } from "react";
+import { useRef, useEffect, Ref, ReactNode, useState } from "react";
 
 // ** MUI Imports
 import Box from "@mui/material/Box";
@@ -31,6 +31,11 @@ import {
   FormattedChatsType,
 } from "src/context/chatTypes";
 
+import { useAppSelector, useAppDispatch } from "src/store/hooks";
+
+import { toString as uint8ArrayToString } from "uint8arrays/to-string"
+import { selectChat } from "src/store/apps/chat";
+
 const PerfectScrollbar = styled(PerfectScrollbarComponent)<
   ScrollBarProps & { ref: Ref<unknown> }
 >(({ theme }) => ({
@@ -43,6 +48,12 @@ const ChatLog = (props: ChatLogType) => {
 
   // ** Ref
   const chatArea = useRef(null);
+
+  const nodeStore = useAppSelector((state) => state.node.node);
+
+  const dispatch = useAppDispatch();
+
+  const [message, setMessage] = useState<string>("");
 
   // ** Scroll to chat bottom
   const scrollToBottom = () => {
@@ -135,6 +146,17 @@ const ChatLog = (props: ChatLogType) => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
+
+  nodeStore?.pubsub.addEventListener("message", (msg) => {
+    //@ts-ignore
+    //if (msg.detail.topic !== "chat") return;
+
+    if(msg.detail.from.toString() === data.contact.peerId){
+      
+      //@ts-ignore
+      dispatch(selectChat([data.chat.id, data.contact.owner]))
+    }
+  });
 
   // ** Renders user chat
   const renderChats = () => {

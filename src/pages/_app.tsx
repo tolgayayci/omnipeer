@@ -70,6 +70,8 @@ import { pipe } from "it-pipe";
 import { toString as uint8ArrayToString } from "uint8arrays/to-string";
 import { fromString as uint8ArrayFromString } from "uint8arrays/from-string";
 
+import TransferRequest from "src/components/transfer/TransferRequest";
+
 Amplify.configure(awsExports);
 
 // ** Extend App Props with Emotion
@@ -122,6 +124,7 @@ const App = (props: ExtendedAppProps) => {
         console.log("User info fetched");
         //@ts-ignore
         store.dispatch(
+          //@ts-ignore
           updateUserInfo(store.getState().node.node.peerId.toString())
         );
       })
@@ -140,6 +143,7 @@ const App = (props: ExtendedAppProps) => {
                     ).split(" ");
                     //@ts-ignore
                     store.dispatch(
+                      //@ts-ignore
                       setFileDetails((prev) => [
                         ...prev,
                         fileDetailsArray[0],
@@ -159,7 +163,12 @@ const App = (props: ExtendedAppProps) => {
                   .then((stream) => {
                     console.log("Answer Send");
                     //TODO: Check the conditions!
-                    pipe([uint8ArrayFromString("YES")], stream);
+
+                    pipe([uint8ArrayFromString("NO")], stream)
+                    
+                    return(
+                      <TransferRequest />
+                    )
                   });
               });
             }
@@ -183,13 +192,12 @@ const App = (props: ExtendedAppProps) => {
                         .then((stream) => {
                           if (store.getState().node.files?.length) {
                             console.log("sending file");
-                            //@ts-ignore
                             const file = new File(
-                              [store.getState().node.files[0]],
-                              store.getState().node.files[0].name
+                              //@ts-ignore
+                              [store.getState().node.files[0]], store.getState().node.files[0].name
                             );
-                            // @ts-ignore
                             const blob = new Blob([file], {
+                              // @ts-ignore
                               type: store.getState().node.files[0].type,
                             });
                             // Create a file reader
@@ -241,8 +249,8 @@ const App = (props: ExtendedAppProps) => {
                   }
                 }
                 console.log(array.length);
-                //@ts-ignore
                 var blob = new Blob([array], {
+                  //@ts-ignore
                   type: store.getState().node.fileDetails[2],
                 });
                 console.log(blob);
@@ -250,6 +258,7 @@ const App = (props: ExtendedAppProps) => {
                 //@ts-ignore
                 aElement.setAttribute(
                   "download",
+                  //@ts-ignore
                   store.getState().node.fileDetails[0]
                 );
                 const href = URL.createObjectURL(blob);
@@ -263,6 +272,7 @@ const App = (props: ExtendedAppProps) => {
         });
       })
       .then(() => {
+        //@ts-ignore
         store.getState().node.node?.pubsub.subscribe("chat");
       })
       .catch((err) => {

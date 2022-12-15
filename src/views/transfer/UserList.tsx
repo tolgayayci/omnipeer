@@ -21,7 +21,8 @@ import { getUser } from "src/graphql/queries";
 import { Grid } from "@mui/material";
 import { useEffect, useState } from "react";
 
-import { useAppSelector } from "src/store/hooks";
+import { useAppSelector, useAppDispatch} from "src/store/hooks";
+import {  setRemotePeerIdAsString } from "src/store/apps/node";
 
 const StyledList = styled(List)<ListProps>(({ theme }) => ({
   "& .MuiListItem-container": {
@@ -51,12 +52,15 @@ const StyledList = styled(List)<ListProps>(({ theme }) => ({
 
 type ListUsersProps = {
   users: string[];
+  step: number;
+  setStep: (step: number ) => void;
 };
 
 const ListUsers = (props: ListUsersProps) => {
-  const { users } = props;
+  const { users, step, setStep } = props;
 
   const node = useAppSelector((state) => state.node);
+  const dispatch = useAppDispatch();
 
   const [peerIds, setPeerIds] = useState<string[]>([]);
   const [isOnline, setIsOnline] = useState<boolean[]>([]);
@@ -104,6 +108,8 @@ const ListUsers = (props: ListUsersProps) => {
       ?.ping(remotePeerId!)
       .then((ping) => {
         console.log(ping);
+        dispatch(setRemotePeerIdAsString(peerId))
+        setStep(1)
         return true;
       })
       .catch((err) => {
@@ -142,10 +148,13 @@ const ListUsers = (props: ListUsersProps) => {
     if (users.length > 0) {
       users.map((user, index) => {
         //@ts-ignore
+        console.log(user)
+        //@ts-ignore
         handleConnectionState(user.contactId, index);
       });
     }
-  }, [node.node?.connectionManager.getConnections()]);
+
+  }, [node.remotePeerIds]);
 
   return (
     <Grid>

@@ -27,6 +27,8 @@ import { ChatContentType } from "src/context/chatTypes";
 import { useAppSelector, useAppDispatch } from "src/store/hooks";
 import { fetchChatsContacts, selectChat } from "src/store/apps/chat";
 
+import { toString as uint8ArrayToString } from "uint8arrays/to-string"
+
 // ** Styled Components
 const ChatWrapperStartChat = styled(Box)<BoxProps>(({ theme }) => ({
   flexGrow: 1,
@@ -59,6 +61,7 @@ const ChatContent = (props: ChatContentType) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const open = Boolean(anchorEl);
+  const [updated, setUpdated] = useState(false);
 
   const handleClick = (event: SyntheticEvent) => {
     setAnchorEl(event.currentTarget as HTMLElement);
@@ -73,13 +76,14 @@ const ChatContent = (props: ChatContentType) => {
     }
   };
 
-  const nodeStore = useAppSelector((state) => state.node.node);
+  const nodeStore = useAppSelector((state) => state.node.node); 
 
   nodeStore?.pubsub.addEventListener("message", (msg) => {
     //@ts-ignore
     if (msg.detail.topic !== "chat") return;
+
     dispatch(fetchChatsContacts());
-    
+
   });
 
   const renderContent = () => {

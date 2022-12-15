@@ -60,7 +60,7 @@ const initialState: User = {
   fullName: "",
   peerId: "",
   nickname: "",
-  contacts: null,
+  friends: null,
   createdAt: "",
   updatedAt: "",
 };
@@ -83,7 +83,7 @@ export const userSlice = createSlice({
         state.fullName = action.payload.fullName;
         state.peerId = action.payload.peerId;
         state.nickname = action.payload.nickname;
-        state.contacts = action.payload.contacts;
+        state.friends = action.payload.friends;
         state.createdAt = action.payload.createdAt;
         state.updatedAt = action.payload.updatedAt;
       }

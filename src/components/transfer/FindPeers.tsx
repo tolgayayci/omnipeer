@@ -32,8 +32,11 @@ import Minus from "mdi-material-ui/Minus";
 import { useAppDispatch, useAppSelector } from "src/store/hooks";
 import { setRemotePeerIds, setRemotePeerIdAsString } from "src/store/apps/node";
 
-import type { Friendship, User } from "src/API";
+import type { Friendship } from "src/API";
 import ListUsers from "src/views/transfer/UserList";
+import { API, graphqlOperation, Auth } from "aws-amplify";
+import { listFriendships } from "src/graphql/queries";
+import { FriendshipStatus } from "src/API";
 
 // Styled component for Accordion component
 const Accordion = styled(MuiAccordion)<AccordionProps>(({ theme }) => ({
@@ -90,7 +93,12 @@ const AccordionDetails = styled(MuiAccordionDetails)<AccordionDetailsProps>(
   })
 );
 
-const FindPeers = () => {
+interface FindPeersProps {
+  step: number;
+  setStep: (step: number) => void;
+}
+
+const FindPeers = (props: FindPeersProps) => {
   const [expanded, setExpanded] = useState<string | false>("panel1");
 
   const node = useAppSelector((state) => state.node.node);
@@ -122,10 +130,24 @@ const FindPeers = () => {
     //TODO: Manually dial peer
   }
 
-  useEffect(() => {
-    if (user.contacts?.items.length) {
+  const handleAddContact = async () => { 
+
+    const user = await Auth.currentAuthenticatedUser();
+
+    await API.graphql(graphqlOperation(listFriendships, { 
+      filter: {
+        and: [
+          { contactId: { ne: user.attributes.sub } },
+          { status: { eq: FriendshipStatus.ACCEPTED } },
+          { owners: { contains: user.attributes.sub } }
+        ],
+      }
+    //@ts-ignore
+    })).then((result) => {
+
+      if (result.data.listFriendships.items.length) {
       //@ts-ignore
-      user.contacts?.items.map((contact: Friendship, index: number) => {
+      result.data.listFriendships.items.map((contact: Friendship, index: number) => {
         let peerIdsArray = contacts;
 
         //@ts-ignore
@@ -134,7 +156,16 @@ const FindPeers = () => {
         setContacts(peerIdsArray);
       });
     }
-  }, [user.contacts]);
+
+    //@ts-ignore
+    }).catch((err) => {
+      console.log(err);
+    });
+  };
+
+  useEffect(() => {
+    handleAddContact()
+  }, [user.friends]);
 
   const expandIcon = (value: string) =>
     expanded === value ? <Minus /> : <Plus />;
@@ -206,7 +237,7 @@ const FindPeers = () => {
               <Typography>Show Peers & Connect</Typography>
             </AccordionSummary>
             <AccordionDetails>
-              <ListUsers users={contacts} />
+              <ListUsers users={contacts} step={props.step} setStep={props.setStep} />
             </AccordionDetails>
           </Accordion>
           <Accordion

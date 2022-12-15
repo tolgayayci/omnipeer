@@ -27,12 +27,14 @@ const navigation = (): VerticalNavItemsType => {
       title: "NFT",
       icon: Brush,
       path: "/storage/nft",
+      disabled: true,
+
     },
     {
       sectionTitle: "File Transfer",
     },
     {
-      title: "P2P",
+      title: "Peer Transfer",
       icon: AccountSwitch,
       path: "/transfer/",
     },
