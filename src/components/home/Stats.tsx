@@ -15,18 +15,16 @@ import AddFriends from "../friendship/AddFriends";
 const Stats = () => {
   // ** States
 
-  useEffect(() => {
-    
-  }, []);
+  useEffect(() => {}, []);
 
   return (
     <Card>
-        <CardHeader title="Stats" />
-        <Box sx={{ p: 2 }}>
-            <Typography variant="body2" sx={{ color: "text.primary" }}>
-                No stats
-            </Typography>
-        </Box>
+      <CardHeader title="Stats" />
+      <Box sx={{ p: 2 }}>
+        <Typography variant="body2" sx={{ color: "text.primary" }}>
+          No stats
+        </Typography>
+      </Box>
     </Card>
   );
 };

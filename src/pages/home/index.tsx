@@ -14,16 +14,11 @@ import PendingRequests from "src/components/home/PendingRequests";
 import UserInvite from "src/components/home/UserInvite";
 
 const Home = () => {
-
   const user = useAppSelector((state) => state.user);
 
-  useEffect(() => {
-
-  }, []);
-
   return (
-    <Grid 
-      container 
+    <Grid
+      container
       spacing={6}
       display="flex"
       flexDirection="column"
@@ -31,15 +26,23 @@ const Home = () => {
       alignContent="center"
       flexWrap="nowrap"
       sx={{
-        minHeight: "100%"
+        minHeight: "100%",
       }}
     >
       <Grid item xs={12} md={12} lg={12}>
         <UserInvite />
       </Grid>
-      <Grid spacing={6} marginLeft={0} pt={6.5} container alignContent="center" flexDirection="row" sx={{
-        maxWidth: "100%"
-      }}>
+      <Grid
+        spacing={6}
+        marginLeft={0}
+        pt={6.5}
+        container
+        alignContent="center"
+        flexDirection="row"
+        sx={{
+          maxWidth: "100%",
+        }}
+      >
         <Grid item xs={12} md={6} lg={6}>
           <UploadOverview />
         </Grid>

@@ -18,6 +18,7 @@ interface NodeState {
   remotePeerIdAsString: string | null;
   files: File[] | null;
   fileDetails: String[] | null;
+  isAccepted: boolean | null;
 }
 
 const initialState: NodeState = {
@@ -27,6 +28,7 @@ const initialState: NodeState = {
   remotePeerIdAsString: "",
   files: [],
   fileDetails: [],
+  isAccepted: null,
 };
 
 export const createNode = createAsyncThunk("node/createNode", async () => {
@@ -82,6 +84,9 @@ export const nodeSlice = createSlice({
     setFileDetails: (state, action) => {
       state.fileDetails = action.payload;
     },
+    setIsAccepted: (state, action) => {
+      state.isAccepted = action.payload;
+    }
   },
   extraReducers: (builder) => {
     builder.addCase(
@@ -98,6 +103,7 @@ export const {
   setRemotePeerIdAsString,
   setFiles,
   setFileDetails,
+  setIsAccepted
 } = nodeSlice.actions;
 
 export const node = (state: RootState) => state.node.node;

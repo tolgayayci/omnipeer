@@ -33,7 +33,7 @@ import {
 
 import { useAppSelector, useAppDispatch } from "src/store/hooks";
 
-import { toString as uint8ArrayToString } from "uint8arrays/to-string"
+import { toString as uint8ArrayToString } from "uint8arrays/to-string";
 import { selectChat } from "src/store/apps/chat";
 
 const PerfectScrollbar = styled(PerfectScrollbarComponent)<
@@ -151,10 +151,9 @@ const ChatLog = (props: ChatLogType) => {
     //@ts-ignore
     //if (msg.detail.topic !== "chat") return;
 
-    if(msg.detail.from.toString() === data.contact.peerId){
-      
+    if (msg.detail.from.toString() === data.contact.peerId) {
       //@ts-ignore
-      dispatch(selectChat([data.chat.id, data.contact.owner]))
+      dispatch(selectChat([data.chat.id, data.contact.owner]));
     }
   });
 

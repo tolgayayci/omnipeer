@@ -28,7 +28,6 @@ const navigation = (): VerticalNavItemsType => {
       icon: Brush,
       path: "/storage/nft",
       disabled: true,
-
     },
     {
       sectionTitle: "File Transfer",

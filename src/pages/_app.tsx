@@ -5,7 +5,7 @@ import type { NextPage } from "next";
 import type { AppProps } from "next/app";
 
 // ** React Imports
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 // ** Loader Import
 import NProgress from "nprogress";
@@ -68,6 +68,9 @@ import { toString as uint8ArrayToString } from "uint8arrays/to-string";
 import { fromString as uint8ArrayFromString } from "uint8arrays/from-string";
 
 import TransferRequest from "src/components/transfer/TransferRequest";
+import TransferProgress from "src/components/transfer/TransferProgress";
+
+import { setIsAccepted } from "src/store/apps/node";
 
 import type PeerId from "peer-id";
 
@@ -100,7 +103,11 @@ const App = (props: ExtendedAppProps) => {
 
   const [isLoading, setIsLoading] = useState(true);
   const [isTransferRequest, setIsTransferRequest] = useState(false);
+  const [isTransferRequestApproved, setIsTransferRequestApproved] =
+    useState(false);
   const [peerId, setPeerId] = useState<PeerId>();
+  const chunkSize = useRef(0);
+  const [value, setValue] = useState<number>(0);
 
   // Variables
   const getLayout =
@@ -145,7 +152,12 @@ const App = (props: ExtendedAppProps) => {
                     //@ts-ignore
                     store.dispatch(
                       //@ts-ignore
-                      setFileDetails([fileDetailsArray[0], fileDetailsArray[1], fileDetailsArray[2]])
+                      setFileDetails([
+                        fileDetailsArray[0],
+                        fileDetailsArray[1],
+                        fileDetailsArray[2],
+                        false
+                      ])
                     );
                   }
                 })()
@@ -157,13 +169,12 @@ const App = (props: ExtendedAppProps) => {
                     "/send-stream-request/answer",
                   ])
                   .then((stream) => {
-                    
                     //@ts-ignore
                     setPeerId(connection.remotePeer);
                     setIsTransferRequest(true);
 
                     // pipe([uint8ArrayFromString("NO")], stream)
-                    stream.close(); 
+                    stream.close();
                   });
               });
             }
@@ -187,27 +198,41 @@ const App = (props: ExtendedAppProps) => {
                         .then((stream) => {
                           if (store.getState().node.files?.length) {
                             console.log("sending file");
+
                             const file = new File(
                               //@ts-ignore
                               [store.getState().node.files[0]], store.getState().node.files[0].name
                             );
+
                             const blob = new Blob([file], {
                               // @ts-ignore
                               type: store.getState().node.files[0].type,
                             });
+
                             // Create a file reader
                             const reader = new FileReader();
+
                             // Set the reader to load as a data URL
                             reader.readAsArrayBuffer(blob);
+
                             // When the reader has loaded, set the image source to the data URL
                             reader.onload = () => {
                               var arrayBuffer = reader.result;
+
                               //@ts-ignore
                               var bytes = new Uint8Array(arrayBuffer);
-                              console.log(bytes.byteLength);
+
+                              console.log(bytes.length);
+
                               // Send the file to the remote peer
-                              pipe([bytes], stream);
-                            };
+                              pipe([bytes], stream)
+                              .then(() => {
+                                console.log("File transfer is started");
+                                //@ts-ignore
+                                store.dispatch(setIsAccepted(true));
+                              });
+
+                            } 
                           } else {
                             console.log("file is undefined");
                             const data = store
@@ -217,54 +242,81 @@ const App = (props: ExtendedAppProps) => {
                               });
                             console.log(data);
                           }
-                        });
+                        })
                     } else {
                       console.log("NO");
+                      store.dispatch(setIsAccepted(false));
                     }
                   }
                 })()
               );
             }
           );
-        store.getState().node.node?.handle("/send-file", ({ stream }) => {
-          console.log("got a new stream");
-          pipe(stream, (source) =>
-            (async function () {
-              for await (const msg of source) {
-                var array = new Uint8Array(msg.length);
-                //@ts-ignore
-                for (var i = 0; i < msg.bufs.length; i++) {
+        store
+          .getState()
+          .node.node?.handle("/send-file", ({ stream }) => {
+            console.log("got a new stream");
+
+            pipe(
+              stream.source,
+              function logger(source) {
+                var array = new Uint8Array(
                   //@ts-ignore
-                  if (i === 0) {
-                    //@ts-ignore
-                    array.set(msg.bufs[i]);
-                  } else {
-                    //@ts-ignore
-                    array.set(msg.bufs[i], msg.bufs[i - 1].length);
-                  }
-                }
-                console.log(array.length);
-                var blob = new Blob([array], {
-                  //@ts-ignore
-                  type: store.getState().node.fileDetails[2],
-                });
-                console.log(blob);
-                const aElement = document.createElement("a");
-                //@ts-ignore
-                aElement.setAttribute(
-                  "download",
-                  //@ts-ignore
-                  store.getState().node.fileDetails[0]
+                  store.getState().node.fileDetails[1]
                 );
-                const href = URL.createObjectURL(blob);
-                aElement.href = href;
-                aElement.setAttribute("target", "_blank");
-                aElement.click();
-                URL.revokeObjectURL(href);
-              }
-            })()
-          );
-        });
+                let counter = 0;
+
+                return (async function* () {
+                  // A generator is async iterable
+                  for await (const msg of source) {
+
+                    //@ts-ignore
+                    for (var i = 0; i < msg.bufs.length; i++) {
+                      if (i === 0 && counter === 0) {
+                        //@ts-ignore
+                        array.set(msg.bufs[i]);
+                        //@ts-ignore
+                        counter += msg.bufs[i].length;
+                      } else {
+                        //@ts-ignore
+                        array.set(msg.bufs[i], counter);
+                        //@ts-ignore
+                        counter += msg.bufs[i].length;
+                      }
+                    }
+
+                    //@ts-ignore
+                    chunkSize.current += counter - chunkSize.current;
+                    //@ts-ignore
+                    setValue((chunkSize.current / store.getState().node.fileDetails[1]) * 100);
+                  }
+
+                  var blob = new Blob([array], {
+                    //@ts-ignore
+                    type: store.getState().node.fileDetails[2],
+                  });
+
+                  console.log(blob);
+
+                  const aElement = document.createElement("a");
+                  //@ts-ignore
+                  aElement.setAttribute(
+                    "download",
+                    //@ts-ignore
+                    store.getState().node.fileDetails[0]
+                  );
+                  const href = URL.createObjectURL(blob);
+                  aElement.href = href;
+                  aElement.setAttribute("target", "_blank");
+                  aElement.click();
+                  URL.revokeObjectURL(href);
+                })();
+              },
+              stream.sink
+            ).then(() => {
+              console.log("stream closed");
+            });
+          });
       })
       .then(() => {
         //@ts-ignore
@@ -304,7 +356,17 @@ const App = (props: ExtendedAppProps) => {
                   <ThemeComponent settings={settings}>
                     <WindowWrapper>
                       {getLayout(<Component {...pageProps} />)}
-                      <TransferRequest open={isTransferRequest} peerId={peerId} />
+                      <TransferRequest
+                        open={isTransferRequest}
+                        setOpen={setIsTransferRequest}
+                        peerId={peerId}
+                        setAccepted={setIsTransferRequestApproved}
+                      />
+                      <TransferProgress
+                        open={isTransferRequestApproved}
+                        setOpen={setIsTransferRequestApproved}
+                        chunkSize={chunkSize}
+                      />
                     </WindowWrapper>
                     <ReactHotToast>
                       <Toaster

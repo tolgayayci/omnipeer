@@ -23,6 +23,10 @@ import DropzoneWrapper from "src/@core/styles/libs/react-dropzone";
 
 import { useAppSelector } from "src/store/hooks";
 
+import { API, graphqlOperation, Auth } from "aws-amplify";
+import { listFriendships } from "src/graphql/queries";
+import { FriendshipStatus } from "src/API";
+
 const steps = ["Find Peers", "Select File", "Start Transfer"];
 
 export default function StepperWrapper() {
@@ -129,6 +133,42 @@ export default function StepperWrapper() {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
+  // const [isFriendshipLoaded, setIsFriendshipLoaded] = useState(false);
+
+  // const checkFriends = async () => {
+
+  //   const user = await Auth.currentAuthenticatedUser();
+
+  //   if (user.friends) {
+  //     setIsFriendshipLoaded(true);
+  //   } else {
+  //     await API.graphql(
+  //       graphqlOperation(listFriendships, {
+  //         filter: {
+  //           and: [
+  //             { contactId: { ne: user.attributes.sub } },
+  //             { status: { eq: FriendshipStatus.ACCEPTED } },
+  //             { owners: { contains: user.attributes.sub } },
+  //           ],
+  //         },
+  //       })
+  //     // @ts-ignore
+  //     ).then((res) => {
+  //         if (res.data.listFriendships.items.length > 0) {
+  //           if(!user.friends) {
+  //             setIsFriendshipLoaded(false)
+  //           }
+  //           setIsFriendshipLoaded(true)
+  //         } else {
+  //           console.log(res.data.listFriendships.items)
+  //           setIsFriendshipLoaded(true)
+  //         }
+  //       }
+  //     )
+  //   }
+  // };
+
+
   const handleSkip = () => {
     if (!isStepOptional(activeStep)) {
       // You probably want to guard against something like this,
@@ -188,7 +228,11 @@ export default function StepperWrapper() {
               ) : (
                 <React.Fragment>
                   <CardContent>
-                    {node ? <FindPeers step={activeStep} setStep={setActiveStep} /> : <FallbackSpinner />}
+                    {node ? (
+                      <FindPeers step={activeStep} setStep={setActiveStep} />
+                    ) : (
+                      <FallbackSpinner />
+                    )}
                   </CardContent>
 
                   <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>

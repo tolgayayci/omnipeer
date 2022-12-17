@@ -99,7 +99,7 @@ interface FindPeersProps {
 }
 
 const FindPeers = (props: FindPeersProps) => {
-  const [expanded, setExpanded] = useState<string | false>("panel1");
+  const [expanded, setExpanded] = useState<string | false>(false);
 
   const node = useAppSelector((state) => state.node.node);
   const user = useAppSelector((state) => state.user);
@@ -130,42 +130,49 @@ const FindPeers = (props: FindPeersProps) => {
     //TODO: Manually dial peer
   }
 
-  const handleAddContact = async () => { 
-
+  const handleAddContact = async () => {
     const user = await Auth.currentAuthenticatedUser();
 
-    await API.graphql(graphqlOperation(listFriendships, { 
-      filter: {
-        and: [
-          { contactId: { ne: user.attributes.sub } },
-          { status: { eq: FriendshipStatus.ACCEPTED } },
-          { owners: { contains: user.attributes.sub } }
-        ],
-      }
-    //@ts-ignore
-    })).then((result) => {
+    await API.graphql(
+      graphqlOperation(listFriendships, {
+        filter: {
+          and: [
+            { contactId: { ne: user.attributes.sub } },
+            { status: { eq: FriendshipStatus.ACCEPTED } },
+            { owners: { contains: user.attributes.sub } },
+          ],
+        },
+      })
+    ) //@ts-ignore
+      .then(async (result) => {
+        if (result.data.listFriendships.items.length) {
+          //@ts-ignore
+          result.data.listFriendships.items.map(
+            (contact: Friendship, index: number) => {
+              let peerIdsArray = contacts;
 
-      if (result.data.listFriendships.items.length) {
+              //@ts-ignore
+              peerIdsArray.splice(index, 1, contact);
+
+              setContacts(peerIdsArray);
+
+              return true;
+            }
+          );
+        }
+
+        return false;
+
+      })
       //@ts-ignore
-      result.data.listFriendships.items.map((contact: Friendship, index: number) => {
-        let peerIdsArray = contacts;
-
-        //@ts-ignore
-        peerIdsArray.splice(index, 1, contact);
-
-        setContacts(peerIdsArray);
+      .catch((err) => {
+        console.log(err);
       });
-    }
-
-    //@ts-ignore
-    }).catch((err) => {
-      console.log(err);
-    });
   };
 
   useEffect(() => {
-    handleAddContact()
-  }, [user.friends]);
+    handleAddContact();
+  }, []);
 
   const expandIcon = (value: string) =>
     expanded === value ? <Minus /> : <Plus />;
@@ -216,7 +223,6 @@ const FindPeers = (props: FindPeersProps) => {
                 <AccountCircleOutline />
               </ListItemIcon>
               <ListItemText primary="Peer ID" />
-              {/* TODO: Show Peer ID's as random generated names  */}
               <Typography fontWeight={400}>
                 {node?.peerId.toString()}
               </Typography>
@@ -237,65 +243,11 @@ const FindPeers = (props: FindPeersProps) => {
               <Typography>Show Peers & Connect</Typography>
             </AccordionSummary>
             <AccordionDetails>
-              <ListUsers users={contacts} step={props.step} setStep={props.setStep} />
-            </AccordionDetails>
-          </Accordion>
-          <Accordion
-            expanded={expanded === "panel2"}
-            onChange={handleChange("panel2")}
-          >
-            <AccordionSummary
-              id="customized-panel-header-2"
-              expandIcon={expandIcon("panel2")}
-              aria-controls="customized-panel-content-2"
-            >
-              <Typography>Manually Connect</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Grid container spacing={4}>
-                <Grid item xs={9}>
-                  <TextField
-                    label="Remote Peer Id"
-                    placeholder="12D3KooWBr19pozVrpu7c4jqjHiWd26Z9uxQsHbL1ZPbhoRbQ2dw"
-                    fullWidth
-                    size="medium"
-                    onChange={(e) =>
-                      dispatch(setRemotePeerIdAsString(e.target.value))
-                    }
-                    value={remotePeerIdAsString}
-                  ></TextField>
-                </Grid>
-                <Grid item xs={3}>
-                  {remotePeerIds?.find(
-                    (item) => item.toString() === remotePeerIdAsString
-                  ) ? (
-                    <Button
-                      sx={{
-                        height: "100%",
-                        color: "black",
-                        weight: "bold",
-                      }}
-                      variant="contained"
-                      color="success"
-                      fullWidth
-                    >
-                      Connected
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={handleChangeRemotePeerId}
-                      sx={{
-                        height: "100%",
-                      }}
-                      variant="outlined"
-                      color="warning"
-                      fullWidth
-                    >
-                      Connect
-                    </Button>
-                  )}
-                </Grid>
-              </Grid>
+              <ListUsers
+                users={contacts}
+                step={props.step}
+                setStep={props.setStep}
+              />
             </AccordionDetails>
           </Accordion>
         </Grid>

@@ -12,7 +12,12 @@ import {
   updateChat,
   createFriendship,
 } from "src/graphql/mutations";
-import { getUser, listChats, getChat, listFriendships } from "src/graphql/queries";
+import {
+  getUser,
+  listChats,
+  getChat,
+  listFriendships,
+} from "src/graphql/queries";
 import { ChatsObj, ContactType } from "src/context/chatTypes";
 import {
   CreateChatMutation,
@@ -50,25 +55,29 @@ export const fetchChatsContacts = createAsyncThunk(
       graphqlOperation(getUser, { owner: user.attributes.sub })
     );
 
-    const finalContacts = await API.graphql(graphqlOperation(listFriendships, { 
-      filter: {
-        and: [
-          { contactId: { ne: user.attributes.sub } },
-          { status: { eq: FriendshipStatus.ACCEPTED } },
-          { owners: { contains: user.attributes.sub } }
-        ],
-      }
-    //@ts-ignore
-    })).then(async (result) => {
+    const finalContacts = await API.graphql(
+      graphqlOperation(listFriendships, {
+        filter: {
+          and: [
+            { contactId: { ne: user.attributes.sub } },
+            { status: { eq: FriendshipStatus.ACCEPTED } },
+            { owners: { contains: user.attributes.sub } },
+          ],
+        },
+      })
+    )//@ts-ignore
 
-      return result.data.listFriendships.items.map((friendship: Friendship) => {
-        return friendship.contact;
+      .then(async (result) => {
+        return result.data.listFriendships.items.map(
+          (friendship: Friendship) => {
+            return friendship.contact;
+          }
+        );
+
+      })//@ts-ignore
+      .catch((err) => {
+        console.log("ERROR: ", err);
       });
-
-    //@ts-ignore
-    }).catch((err) => {
-      console.log("ERROR: ", err);
-    });
 
     // @ts-ignore
     const chatsWithContacts = await API.graphql(
@@ -81,47 +90,44 @@ export const fetchChatsContacts = createAsyncThunk(
           ],
         },
       })
-    //@ts-ignore
-    ).then((result) => {
+    )//@ts-ignore
+      .then((result) => {
+        // @ts-ignore
+        const filteredChats = result.data.listChats.items;
 
-      // @ts-ignore
-      const filteredChats = result.data.listChats.items
+        const a = filteredChats.map((chat: Chat) => {
+          // Find the contact that corresponds to the current chat
 
-      const a = filteredChats.map((chat: Chat) => {
-        // Find the contact that corresponds to the current chat
-  
-        const contact = finalContacts.find((c: User) => {
-          return c.owner === chat.senderId || c.owner === chat.userId;
+          const contact = finalContacts.find((c: User) => {
+            return c.owner === chat.senderId || c.owner === chat.userId;
+          });
+
+          if (contact !== undefined) {
+            // @ts-ignore
+            chat.lastMessage = JSON.parse(chat.chat)[
+              //@ts-ignore
+              JSON.parse(chat.chat).length - 1
+            ];
+
+            contact.chat = { ...chat };
+
+            return contact;
+          }
         });
-    
-        if (contact !== undefined) {
-  
-          // @ts-ignore
-          chat.lastMessage = JSON.parse(chat.chat)[
-          //@ts-ignore
-          JSON.parse(chat.chat).length - 1
-          ];
-  
-          contact.chat = { ...chat };
-  
-          return contact;
-        }
-  
-      });
 
-      return a
-      
-    //@ts-ignore
-    }).catch((err) => {
+        return a;
+
+       
+      }) //@ts-ignore
+      .catch((err) => {
         console.log("ERROR: ", err);
-    });
+      });
 
     return {
       chatsContacts: chatsWithContacts,
       contacts: finalContacts,
       profileUser: result.data.getUser,
     };
-
   }
 );
 
@@ -216,6 +222,8 @@ export const sendMsg = createAsyncThunk(
 
       //@ts-ignore
       await dispatch(selectChat([newChat.data.createChat.id, obj.contact?.id]));
+
+      dispatch(fetchChatsContacts());
 
       //set active chat
       //@ts-ignore

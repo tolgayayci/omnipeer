@@ -89,7 +89,7 @@ const AppChat = () => {
       //@ts-ignore
       if (msg.detail.topic !== "chat") return;
       console.log(uint8ArrayToString(msg.detail.data));
-      dispatch(fetchChatsContacts())
+      dispatch(fetchChatsContacts());
     });
   }, [store.chats]);
 

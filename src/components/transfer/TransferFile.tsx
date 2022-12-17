@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 // libp2p imports
 import { pipe } from "it-pipe";
@@ -8,7 +8,10 @@ import Grid from "@mui/material/Grid";
 
 import toast from "react-hot-toast";
 
-import { Button } from "@mui/material";
+import { Button, fabClasses } from "@mui/material";
+import Alert from "@mui/material/Alert";
+import AlertTitle from "@mui/material/AlertTitle";
+import CheckCircleOutline from "mdi-material-ui/CheckCircleOutline";
 
 import { useAppSelector } from "src/store/hooks";
 
@@ -19,6 +22,9 @@ const TransferFile = () => {
     (state) => state.node.remotePeerIdAsString
   );
   const files = useAppSelector((state) => state.node.files);
+  const isAccepted = useAppSelector((state) => state.node.isAccepted);
+  const [status, setStatus] = useState<boolean>(false);
+  const [isRequestSent, setIsRequestSent] = useState<boolean | null>(false);
 
   async function transferFile() {
     console.log(remotePeerIdAsString);
@@ -47,6 +53,7 @@ const TransferFile = () => {
     } else {
       node?.dialProtocol(result, ["/send-stream-request"]).then((stream) => {
         console.log("Stream Request Send");
+        setIsRequestSent(true);
 
         pipe(
           [
@@ -62,11 +69,72 @@ const TransferFile = () => {
   }
 
   useEffect(() => {
-    console.log(files);
-  }, [files]);
+    console.log(isAccepted);
+  }, [isAccepted]);
 
   return (
     <Grid container spacing={6}>
+      {isAccepted !== null ? null : (
+        <Grid item xs={12}>
+          {isRequestSent ? (
+            <Alert
+              severity="info"
+              icon={<CheckCircleOutline />}
+              sx={{ mt: 6, "& .MuiAlert-message": { overflow: "hidden" } }}
+            >
+              <AlertTitle>
+                <strong>File Transfer Request Sent</strong>
+              </AlertTitle>
+              Your file transfer request has been sent to the remote peer and
+              waiting for the response.
+            </Alert>
+          ) : (
+            <Alert
+              severity="warning"
+              icon={<CheckCircleOutline />}
+              sx={{ mt: 6, "& .MuiAlert-message": { overflow: "hidden" } }}
+            >
+              <AlertTitle>
+                <strong>File Transfer Request is Waiting</strong>
+              </AlertTitle>
+              You have not sent any file request to the remote peer, click on
+              the button below to send the request.
+            </Alert>
+          )}
+        </Grid>
+      )}
+
+      {isAccepted !== null ? (
+        
+        <Grid item xs={12}>
+          {isAccepted ? (
+            <>
+              <Alert
+                severity="success"
+                icon={<CheckCircleOutline />}
+                sx={{ mt: 6, "& .MuiAlert-message": { overflow: "hidden" } }}
+              >
+                <AlertTitle>
+                  <strong>File Transfer Request Accepted</strong>
+                </AlertTitle>
+                Remote peer has accepted your file transfer request and transfer is in progress.
+              </Alert>
+            </>
+          ) : (
+            <Alert
+              severity="error"
+              icon={<CheckCircleOutline />}
+              sx={{ mt: 6, "& .MuiAlert-message": { overflow: "hidden" } }}
+            >
+              <AlertTitle>
+                <strong>File Transfer Request is Denied!</strong>
+              </AlertTitle>
+              Remote peer has denied your file transfer request.
+            </Alert>
+          )}
+        </Grid>
+      ) : null}
+
       <Grid item xs={12}>
         <Button
           sx={{
@@ -78,6 +146,7 @@ const TransferFile = () => {
           color="warning"
           fullWidth
           onClick={transferFile}
+          disabled={isAccepted !== null ? true : false}
         >
           Start File Transfer
         </Button>

@@ -53,7 +53,8 @@ const UserDropdown = (props: Props) => {
   // ** States
   const [anchorEl, setAnchorEl] = useState<Element | null>(null);
   const [isUserEditModalVisible, setIsUserEditModalVisible] = useState(false);
-  const [isFriendshipModalVisible, setIsFriendshipModalVisible] = useState(false)
+  const [isFriendshipModalVisible, setIsFriendshipModalVisible] =
+    useState(false);
   const user = useAppSelector((state) => state.user);
 
   // ** Hooks
@@ -72,7 +73,6 @@ const UserDropdown = (props: Props) => {
     }
     setAnchorEl(null);
   };
-
 
   const styles = {
     py: 2,
@@ -171,7 +171,10 @@ const UserDropdown = (props: Props) => {
             Edit Profile
           </Box>
         </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => setIsFriendshipModalVisible(true)}>
+        <MenuItem
+          sx={{ p: 0 }}
+          onClick={() => setIsFriendshipModalVisible(true)}
+        >
           <Box sx={styles}>
             <AccountOutline sx={{ marginRight: 2 }} />
             Add Friend
@@ -195,8 +198,14 @@ const UserDropdown = (props: Props) => {
           Logout
         </MenuItem>
       </Menu>
-      <EditProfile show={isUserEditModalVisible} />
-      <AddFriends show={isFriendshipModalVisible} />
+      <EditProfile
+        show={isUserEditModalVisible}
+        setShow={setIsUserEditModalVisible}
+      />
+      <AddFriends
+        show={isFriendshipModalVisible}
+        setShow={setIsFriendshipModalVisible}
+      />
     </Fragment>
   );
 };
