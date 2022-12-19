@@ -16,6 +16,7 @@ interface NodeState {
   peerId: PeerId | null;
   remotePeerIds: PeerId[] | null;
   remotePeerIdAsString: string | null;
+  remotePeerAuthId: string | null;
   files: File[] | null;
   fileDetails: String[] | null;
   isAccepted: boolean | null;
@@ -26,6 +27,7 @@ const initialState: NodeState = {
   peerId: null,
   remotePeerIds: [],
   remotePeerIdAsString: "",
+  remotePeerAuthId: "",
   files: [],
   fileDetails: [],
   isAccepted: null,
@@ -86,7 +88,10 @@ export const nodeSlice = createSlice({
     },
     setIsAccepted: (state, action) => {
       state.isAccepted = action.payload;
-    }
+    },
+    setRemotePeerAuthId: (state, action) => {
+      state.remotePeerAuthId = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(
@@ -103,7 +108,8 @@ export const {
   setRemotePeerIdAsString,
   setFiles,
   setFileDetails,
-  setIsAccepted
+  setIsAccepted,
+  setRemotePeerAuthId
 } = nodeSlice.actions;
 
 export const node = (state: RootState) => state.node.node;

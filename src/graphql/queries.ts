@@ -105,6 +105,19 @@ export const getUser = /* GraphQL */ `
         }
         nextToken
       }
+      streams {
+        items {
+          id
+          name
+          size
+          status
+          owners
+          createdAt
+          updatedAt
+          userStreamsId
+        }
+        nextToken
+      }
       createdAt
       updatedAt
     }
@@ -168,6 +181,19 @@ export const listUsers = /* GraphQL */ `
             updatedAt
             userStorageId
             owner
+          }
+          nextToken
+        }
+        streams {
+          items {
+            id
+            name
+            size
+            status
+            owners
+            createdAt
+            updatedAt
+            userStreamsId
           }
           nextToken
         }
@@ -236,6 +262,19 @@ export const userByEmail = /* GraphQL */ `
             updatedAt
             userStorageId
             owner
+          }
+          nextToken
+        }
+        streams {
+          items {
+            id
+            name
+            size
+            status
+            owners
+            createdAt
+            updatedAt
+            userStreamsId
           }
           nextToken
         }
@@ -369,6 +408,19 @@ export const getFriendship = /* GraphQL */ `
           }
           nextToken
         }
+        streams {
+          items {
+            id
+            name
+            size
+            status
+            owners
+            createdAt
+            updatedAt
+            userStreamsId
+          }
+          nextToken
+        }
         createdAt
         updatedAt
       }
@@ -413,6 +465,9 @@ export const listFriendships = /* GraphQL */ `
             nextToken
           }
           storage {
+            nextToken
+          }
+          streams {
             nextToken
           }
           createdAt
@@ -463,6 +518,9 @@ export const friendsByUserId = /* GraphQL */ `
           storage {
             nextToken
           }
+          streams {
+            nextToken
+          }
           createdAt
           updatedAt
         }
@@ -470,6 +528,49 @@ export const friendsByUserId = /* GraphQL */ `
         owners
         createdAt
         updatedAt
+      }
+      nextToken
+    }
+  }
+`;
+export const getStream = /* GraphQL */ `
+  query GetStream($id: ID!) {
+    getStream(id: $id) {
+      id
+      name
+      size
+      status
+      owners
+      createdAt
+      updatedAt
+      userStreamsId
+    }
+  }
+`;
+export const listStreams = /* GraphQL */ `
+  query ListStreams(
+    $id: ID
+    $filter: ModelStreamFilterInput
+    $limit: Int
+    $nextToken: String
+    $sortDirection: ModelSortDirection
+  ) {
+    listStreams(
+      id: $id
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      sortDirection: $sortDirection
+    ) {
+      items {
+        id
+        name
+        size
+        status
+        owners
+        createdAt
+        updatedAt
+        userStreamsId
       }
       nextToken
     }

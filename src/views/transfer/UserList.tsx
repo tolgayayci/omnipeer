@@ -22,7 +22,7 @@ import { Grid } from "@mui/material";
 import { useEffect, useState } from "react";
 
 import { useAppSelector, useAppDispatch } from "src/store/hooks";
-import { setRemotePeerIdAsString } from "src/store/apps/node";
+import { setRemotePeerIdAsString, setRemotePeerAuthId } from "src/store/apps/node";
 
 const StyledList = styled(List)<ListProps>(({ theme }) => ({
   "& .MuiListItem-container": {
@@ -99,7 +99,7 @@ const ListUsers = (props: ListUsersProps) => {
       });
   };
 
-  const pingPeer = async (peerId: string) => {
+  const pingPeer = async (peerId: string, contactId: string) => {
     let remotePeerId = node.remotePeerIds?.find(
       (remotePeerId) => remotePeerId.toString() === peerId
     );
@@ -109,6 +109,7 @@ const ListUsers = (props: ListUsersProps) => {
       .then((ping) => {
         console.log(ping);
         dispatch(setRemotePeerIdAsString(peerId));
+        dispatch(setRemotePeerAuthId(contactId))
         setStep(1);
         return true;
       })
@@ -145,7 +146,6 @@ const ListUsers = (props: ListUsersProps) => {
   };
 
   useEffect(() => {
-    console.log(users.length);
     if (users.length > 0) {
       users.map((user, index) => {
         //@ts-ignore
@@ -224,7 +224,10 @@ const ListUsers = (props: ListUsersProps) => {
                     <Button
                       variant="contained"
                       size="small"
-                      onClick={() => pingPeer(peerIds[index])}
+                      onClick={
+                        //@ts-ignore
+                        () => pingPeer(peerIds[index], users[index].contactId)
+                      }
                     >
                       Select
                     </Button>

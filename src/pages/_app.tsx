@@ -74,6 +74,12 @@ import { setIsAccepted } from "src/store/apps/node";
 
 import type PeerId from "peer-id";
 
+// ** Amplify Imports
+import { API, Auth, graphqlOperation } from "aws-amplify";
+import { listStreams } from "src/graphql/queries";
+import { createStream, updateStream } from "src/graphql/mutations";
+import { UpdateStreamInput, StreamStatus } from "src/API";
+
 Amplify.configure(awsExports);
 
 // ** Extend App Props with Emotion
@@ -119,6 +125,29 @@ const App = (props: ExtendedAppProps) => {
     setIsLoading(false);
   });
 
+  const updateStreamCompletedStatusInfo = async () => {
+
+
+    //@ts-ignore
+    console.log(store.getState().node.fileDetails[3])
+    //@ts-ignore
+    console.log(store.getState().node.fileDetails[4])
+
+    const user = await Auth.currentAuthenticatedUser();
+
+    const updatedStream : UpdateStreamInput = {
+      //@ts-ignore
+      id: store.getState().node.fileDetails[3],
+      status: StreamStatus.COMPLETED,
+      //@ts-ignore
+      owners: [store.getState().node.fileDetails[4], user.attributes.sub]
+    };
+
+    await API.graphql(
+      graphqlOperation(updateStream, { input: updatedStream })
+    );
+  };
+
   useEffect(() => {
     store
       .dispatch(createNode())
@@ -149,6 +178,7 @@ const App = (props: ExtendedAppProps) => {
                     const fileDetailsArray = uint8ArrayToString(
                       msg.subarray()
                     ).split(" ");
+                    console.log(fileDetailsArray);
                     //@ts-ignore
                     store.dispatch(
                       //@ts-ignore
@@ -156,6 +186,8 @@ const App = (props: ExtendedAppProps) => {
                         fileDetailsArray[0],
                         fileDetailsArray[1],
                         fileDetailsArray[2],
+                        fileDetailsArray[3],
+                        fileDetailsArray[4],
                         false
                       ])
                     );
@@ -314,7 +346,8 @@ const App = (props: ExtendedAppProps) => {
               },
               stream.sink
             ).then(() => {
-              console.log("stream closed");
+              console.log("file transfer is done");
+              updateStreamCompletedStatusInfo();
             });
           });
       })

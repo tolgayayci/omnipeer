@@ -210,6 +210,7 @@ const columns: GridColDef[] = [
 
 const PendingRequests = () => {
   const [userArray, setUserArray] = useState<object[]>([]);
+  const [isPending, setIsPending] = useState<boolean>(false);
 
   const handlePendingRequests = async () => {
     const user = await Auth.currentAuthenticatedUser();
@@ -252,6 +253,7 @@ const PendingRequests = () => {
   }, []);
 
   return (
+    
     <Card>
       <CardHeader title="Friend Requests" />
       <DataGrid
@@ -264,6 +266,7 @@ const PendingRequests = () => {
         pagination={undefined}
       />
     </Card>
+    
   );
 };
 

@@ -25,6 +25,7 @@ type User @model @auth(rules: [
   chats: [Chat] @hasMany(indexName: "byUserId", fields: ["owner"])
   friends: [Friendship] @hasMany(indexName: "friendByUserId", fields: ["owner"])
   storage: [Storage] @hasMany
+  streams: [Stream] @hasMany
 }
 
 type Chat 
@@ -61,3 +62,19 @@ type Friendship
   status: FriendshipStatus!
   owners: [String!]!
 }
+
+enum StreamStatus {
+  STARTED
+  NOT_STARTED
+  COMPLETED
+  NOT_COMPLETED
+}
+
+type Stream @model @auth(rules: [{ allow: owner, operations: [create, read, update], ownerField: "owners" }]){
+  id: ID! @primaryKey
+  name: String!
+  size: Int!
+  status: StreamStatus!
+  owners: [String!]!
+}
+

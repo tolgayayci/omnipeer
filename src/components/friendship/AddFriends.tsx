@@ -39,6 +39,8 @@ import { userByEmail } from "src/graphql/queries";
 import { createFriendship } from "src/graphql/mutations";
 import { CreateFriendshipInput, FriendshipStatus } from "src/API";
 
+import toast from "react-hot-toast";
+
 const Transition = forwardRef(function Transition(
   props: FadeProps & { children?: ReactElement<any, any> },
   ref: Ref<unknown>
@@ -76,7 +78,19 @@ const AddFriends = (props: AddFriendsProps) => {
             );
 
             if (userCheck) {
-              console.log("User already added");
+              toast.error("You are already friends!", {
+                position: "top-right",
+                style: {
+                  border: "1px solid #713200",
+                  padding: "16px",
+                  color: "#713200",
+                  background: "#ffffff",
+                },
+                iconTheme: {
+                  primary: "#713200",
+                  secondary: "#FFFAEE",
+                },
+              });
             } else {
               const newFriendship: CreateFriendshipInput = {
                 contactId: res.data.userByEmail.items[0].owner,
@@ -88,8 +102,23 @@ const AddFriends = (props: AddFriendsProps) => {
                 graphqlOperation(createFriendship, { input: newFriendship })
               )//@ts-ignore
                 .then((res) => {
-                    console.log("friendship request sent");
-                    console.log(res);
+                    
+                  toast.success("Your friendship request sent!", {
+                    position: "top-right",
+                    style: {
+                      border: "1px solid #713200",
+                      padding: "16px",
+                      color: "#713200",
+                      background: "#ffffff",
+                    },
+                    iconTheme: {
+                      primary: "#713200",
+                      secondary: "#FFFAEE",
+                    },
+                  });
+
+                  props.setShow(false);
+
                   }
                 )//@ts-ignore
                 .catch((err) => {
@@ -97,7 +126,19 @@ const AddFriends = (props: AddFriendsProps) => {
                 });
             }
           } else {
-            console.log("User not found, send invite to register");
+            toast.error("User not found, sent an invite them to register!", {
+              position: "top-right",
+              style: {
+                border: "1px solid #713200",
+                padding: "16px",
+                color: "#713200",
+                background: "#ffffff",
+              },
+              iconTheme: {
+                primary: "#713200",
+                secondary: "#FFFAEE",
+              },
+            });
           }
         })
         //@ts-ignore
@@ -105,7 +146,19 @@ const AddFriends = (props: AddFriendsProps) => {
           console.log(err);
         });
     } else {
-      console.log("You cannot add yourself");
+      toast.error("You can't send request to yourself!", {
+        position: "top-right",
+        style: {
+          border: "1px solid #713200",
+          padding: "16px",
+          color: "#713200",
+          background: "#ffffff",
+        },
+        iconTheme: {
+          primary: "#713200",
+          secondary: "#FFFAEE",
+        },
+      });
     }
   };
 

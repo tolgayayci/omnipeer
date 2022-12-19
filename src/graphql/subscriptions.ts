@@ -158,6 +158,19 @@ export const onCreateUser = /* GraphQL */ `
         }
         nextToken
       }
+      streams {
+        items {
+          id
+          name
+          size
+          status
+          owners
+          createdAt
+          updatedAt
+          userStreamsId
+        }
+        nextToken
+      }
       createdAt
       updatedAt
     }
@@ -223,6 +236,19 @@ export const onUpdateUser = /* GraphQL */ `
           updatedAt
           userStorageId
           owner
+        }
+        nextToken
+      }
+      streams {
+        items {
+          id
+          name
+          size
+          status
+          owners
+          createdAt
+          updatedAt
+          userStreamsId
         }
         nextToken
       }
@@ -294,6 +320,19 @@ export const onDeleteUser = /* GraphQL */ `
         }
         nextToken
       }
+      streams {
+        items {
+          id
+          name
+          size
+          status
+          owners
+          createdAt
+          updatedAt
+          userStreamsId
+        }
+        nextToken
+      }
       createdAt
       updatedAt
     }
@@ -349,6 +388,19 @@ export const onCreateFriendship = /* GraphQL */ `
             updatedAt
             userStorageId
             owner
+          }
+          nextToken
+        }
+        streams {
+          items {
+            id
+            name
+            size
+            status
+            owners
+            createdAt
+            updatedAt
+            userStreamsId
           }
           nextToken
         }
@@ -415,6 +467,19 @@ export const onUpdateFriendship = /* GraphQL */ `
           }
           nextToken
         }
+        streams {
+          items {
+            id
+            name
+            size
+            status
+            owners
+            createdAt
+            updatedAt
+            userStreamsId
+          }
+          nextToken
+        }
         createdAt
         updatedAt
       }
@@ -478,6 +543,19 @@ export const onDeleteFriendship = /* GraphQL */ `
           }
           nextToken
         }
+        streams {
+          items {
+            id
+            name
+            size
+            status
+            owners
+            createdAt
+            updatedAt
+            userStreamsId
+          }
+          nextToken
+        }
         createdAt
         updatedAt
       }
@@ -485,6 +563,48 @@ export const onDeleteFriendship = /* GraphQL */ `
       owners
       createdAt
       updatedAt
+    }
+  }
+`;
+export const onCreateStream = /* GraphQL */ `
+  subscription OnCreateStream($filter: ModelSubscriptionStreamFilterInput) {
+    onCreateStream(filter: $filter) {
+      id
+      name
+      size
+      status
+      owners
+      createdAt
+      updatedAt
+      userStreamsId
+    }
+  }
+`;
+export const onUpdateStream = /* GraphQL */ `
+  subscription OnUpdateStream($filter: ModelSubscriptionStreamFilterInput) {
+    onUpdateStream(filter: $filter) {
+      id
+      name
+      size
+      status
+      owners
+      createdAt
+      updatedAt
+      userStreamsId
+    }
+  }
+`;
+export const onDeleteStream = /* GraphQL */ `
+  subscription OnDeleteStream($filter: ModelSubscriptionStreamFilterInput) {
+    onDeleteStream(filter: $filter) {
+      id
+      name
+      size
+      status
+      owners
+      createdAt
+      updatedAt
+      userStreamsId
     }
   }
 `;

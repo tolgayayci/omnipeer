@@ -53,16 +53,17 @@ const UserInvite = () => {
               ! 🎉
             </Typography>
             <Typography variant="body2">
-              You have done{" "}
-              <Box component="span" sx={{ fontWeight: 600 }}>
-                68%
+              You have connected{" "}
+              <Box component="span" sx={{ fontWeight: 600, color: "#ffffff" }}>
+                {// @ts-ignore
+                user.friends?.items.length / 2}
               </Box>{" "}
-              😎 more sales today.
+               people from your network.
             </Typography>
             <Typography sx={{ mb: 4.5 }} variant="body2">
-              Check your new badge in your profile.
+              Omnipeer is growing, invite your friends to join the community!
             </Typography>
-            <Button variant="contained">Discover</Button>
+            <Button variant="contained">Add Friend</Button>
           </Grid>
           <StyledGrid item xs={12} sm={6}>
             <Img

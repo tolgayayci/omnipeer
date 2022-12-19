@@ -15,6 +15,12 @@ import CheckCircleOutline from "mdi-material-ui/CheckCircleOutline";
 
 import { useAppSelector } from "src/store/hooks";
 
+// ** Amplify Imports
+import { API, Auth, graphqlOperation } from "aws-amplify";
+import { listStreams } from "src/graphql/queries";
+import { createStream } from "src/graphql/mutations";
+import { CreateStreamInput, StreamStatus } from "src/API";
+
 const TransferFile = () => {
   const node = useAppSelector((state) => state.node.node);
   const remotePeerIds = useAppSelector((state) => state.node.remotePeerIds);
@@ -23,11 +29,42 @@ const TransferFile = () => {
   );
   const files = useAppSelector((state) => state.node.files);
   const isAccepted = useAppSelector((state) => state.node.isAccepted);
+  const remotePeerAuthId = useAppSelector((state) => state.node.remotePeerAuthId);
   const [status, setStatus] = useState<boolean>(false);
   const [isRequestSent, setIsRequestSent] = useState<boolean | null>(false);
 
-  async function transferFile() {
-    console.log(remotePeerIdAsString);
+  const createStreamInfo = async () => {
+
+    const user = await Auth.currentAuthenticatedUser();
+
+    console.log(remotePeerAuthId)
+
+    const streamInput : CreateStreamInput = {
+      // @ts-ignore
+      name: files[0].name,
+      // @ts-ignore
+      size: files[0].size,
+      status: StreamStatus.STARTED,
+      owners: [user.attributes.sub, remotePeerAuthId],
+      userStreamsId: user.attributes.sub
+    }; 
+
+    await API.graphql(
+      graphqlOperation(createStream, { input: streamInput })
+    // @ts-ignore
+    ).then((res) => {
+      transferFile(res.data.createStream.id, user.attributes.sub);
+    // @ts-ignore
+    }).catch((err) => {
+      console.log(err);
+    })
+
+  }     
+
+
+  async function transferFile(streamId: string, userId: string) {
+    console.log(streamId);
+    console.log(userId)
     const result = remotePeerIds?.find(
       (item) => item.toString() === remotePeerIdAsString
     );
@@ -59,7 +96,7 @@ const TransferFile = () => {
           [
             uint8ArrayFromString(
               //@ts-ignore
-              files[0].name + " " + files[0].size + " " + files[0].type
+              files[0].name + " " + files[0].size + " " + files[0].type + " " + streamId + " " + userId
             ),
           ],
           stream
@@ -145,7 +182,7 @@ const TransferFile = () => {
           variant="contained"
           color="warning"
           fullWidth
-          onClick={transferFile}
+          onClick={createStreamInfo}
           disabled={isAccepted !== null ? true : false}
         >
           Start File Transfer

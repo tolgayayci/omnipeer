@@ -1,5 +1,5 @@
 // ** React Imports
-import { ReactElement, useEffect, useState} from "react";
+import { ReactElement, useState, useEffect } from "react";
 
 // ** MUI Imports
 import Box from "@mui/material/Box";
@@ -18,7 +18,6 @@ import DotsVertical from "mdi-material-ui/DotsVertical";
 import AccountOutline from "mdi-material-ui/AccountOutline";
 import FileUploadOutline from "mdi-material-ui/FileUploadOutline";
 import CalendarImport from "mdi-material-ui/CalendarImport";
-import PencilOutline from "mdi-material-ui/PencilOutline";
 
 // ** Types
 import { ThemeColor } from "src/@core/layouts/types";
@@ -27,15 +26,15 @@ import { ThemeColor } from "src/@core/layouts/types";
 import CustomAvatar from "src/@core/components/mui/avatar";
 
 // ** Amplify Imports
-import { API, graphqlOperation } from "aws-amplify";
-import { listStorages} from "src/graphql/queries";
+import { API, Auth, graphqlOperation } from "aws-amplify";
+import { listStreams } from "src/graphql/queries";
+import { StreamStatus } from "src/API";
 
-const UploadOverview = () => {
+const OutcomingStreamOverview = () => {
 
   const [totalUploadedSize, setTotalUploadedSize] = useState<string>("0 MB");
   const [totalUploadedFiles, setTotalUploadedFiles] = useState<number>(0);
-  const [lastUpload, setLastUpload] = useState<string>("No Upload");
-  const [lastFile, setLastFile] = useState<string>("No File");
+  const [lastUpload, setLastUpload] = useState<string>("No Stream");
 
   interface SaleDataType {
     stats: string;
@@ -46,7 +45,7 @@ const UploadOverview = () => {
   
   const renderStats = () => {
     return salesData.map((sale: SaleDataType, index: number) => (
-      <Grid item xs={12} sm={3} key={index}>
+      <Grid item xs={12} sm={4} key={index}>
         <Box key={index} sx={{ display: "flex", alignItems: "center" }}>
           <CustomAvatar
             skin="light"
@@ -71,26 +70,20 @@ const UploadOverview = () => {
     {
       stats: totalUploadedFiles.toString(),
       color: "primary",
-      title: "Uploads",
+      title: "Streams",
       icon: <FileUploadOutline />,
     },
     {
       icon: <Poll />,
       stats: totalUploadedSize,
       color: "warning",
-      title: "Total Upload Size",
-    },
-    {
-      color: "error",
-      stats: lastFile.substring(0, 12) + "...",
-      icon: <PencilOutline />,
-      title: "Last Uploaded File",
+      title: "Total Stream Size",
     },
     {
       color: "info",
       stats: lastUpload,
       icon: <CalendarImport />,
-      title: "Last Upload Date",
+      title: "Last Stream Date",
     },
   ];
 
@@ -110,13 +103,21 @@ const UploadOverview = () => {
 
   const handleCheckStats = async () => {
 
+    const user = await Auth.currentAuthenticatedUser();
+
     let size = 0;
     let date = new Date();
 
-    await API.graphql(graphqlOperation(listStorages))
+    await API.graphql(graphqlOperation(listStreams, { filter: {
+      and: [
+        { owners: { contains: user.attributes.sub } },
+        { status : { eq:  StreamStatus.COMPLETED } },
+        { userStreamsId: { eq: user.attributes.sub } }
+      ]
+    }}))
       // @ts-ignore
       .then((res) => {
-        res.data.listStorages.items.map((item: any) => {
+        res.data.listStreams.items.map((item: any) => {
           size += item.size;
           
           if (item.createdAt > date) {
@@ -125,11 +126,8 @@ const UploadOverview = () => {
 
         });
 
-        console.log(date)
-
         setTotalUploadedSize(formatBytes(size));
-        setTotalUploadedFiles(res.data.listStorages.items.length);
-        setLastFile(res.data.listStorages.items[res.data.listStorages.items.length - 1].name);
+        setTotalUploadedFiles(res.data.listStreams.items.length);
         setLastUpload(date.getDate().toString() + "/" + (date.getMonth() + 1).toString() + "/" + date.getFullYear().toString());
       })
       // @ts-ignore
@@ -146,7 +144,7 @@ const UploadOverview = () => {
   return (
     <Card>
       <CardHeader
-        title="Upload Overview"
+        title="Streaming Overview (Outgoing)"
         titleTypographyProps={{ variant: "h6" }}
         action={
           <IconButton aria-label="settings" className="card-more-options">
@@ -155,12 +153,12 @@ const UploadOverview = () => {
         }
       />
       <CardContent>
-          <Grid container spacing={6}>
-            {renderStats()}
-          </Grid>
+        <Grid container spacing={6}>
+          {renderStats()}
+        </Grid>
       </CardContent>
     </Card>
   );
 };
 
-export default UploadOverview;
+export default OutcomingStreamOverview;
