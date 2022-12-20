@@ -34,8 +34,8 @@ import CustomAvatar from "src/@core/components/mui/avatar";
 import { useAppSelector } from "src/store/hooks";
 
 // ** Amplify Imports
-import { API, graphqlOperation } from "aws-amplify";
-import { userByEmail } from "src/graphql/queries";
+import { API, Auth, graphqlOperation } from "aws-amplify";
+import { listFriendships, userByEmail } from "src/graphql/queries";
 import { createFriendship } from "src/graphql/mutations";
 import { CreateFriendshipInput, FriendshipStatus } from "src/API";
 
@@ -68,30 +68,63 @@ const AddFriends = (props: AddFriendsProps) => {
     if (user.email !== email) {
       console.log("Add Friend");
 
+      const authUser = await Auth.currentAuthenticatedUser();
+
       await API.graphql(graphqlOperation(userByEmail, { email: email }))
         //@ts-ignore
         .then(async (res) => {
+
           if (res.data.userByEmail.items.length) {
-            const userCheck = user.friends?.items.find(
-              (contact) =>
-                contact?.contactId === res.data.userByEmail.items[0].owner
+            
+            const userCheck = await API.graphql(
+              graphqlOperation(listFriendships, {
+                filter: {
+                  and: [
+                    { contactId: { eq: authUser.attributes.sub } },
+                    {or: [ 
+                      { status: { eq: FriendshipStatus.PENDING } },
+                      { status: { eq: FriendshipStatus.ACCEPTED } }
+                    ]},
+                    { owners: { contains: authUser.attributes.sub } },
+                  ],
+                },
+              })
             );
 
-            if (userCheck) {
-              toast.error("You are already friends!", {
-                position: "top-right",
-                style: {
-                  border: "1px solid #713200",
-                  padding: "16px",
-                  color: "#713200",
-                  background: "#ffffff",
-                },
-                iconTheme: {
-                  primary: "#713200",
-                  secondary: "#FFFAEE",
-                },
-              });
-            } else {
+
+            if (userCheck.data.listFriendships.items.length > 0) {
+ 
+              if(userCheck.data.listFriendships.items[0].status === FriendshipStatus.ACCEPTED) {
+                toast.error("You are already friends!", {
+                  position: "top-right",
+                  style: {
+                    border: "1px solid #713200",
+                    padding: "16px",
+                    color: "#713200",
+                    background: "#ffffff",
+                  },
+                  iconTheme: {
+                    primary: "#713200",
+                    secondary: "#FFFAEE",
+                  },
+                });
+              } else {
+                toast.error("You have already sent a friendship request!", {
+                  position: "top-right",
+                  style: {
+                    border: "1px solid #713200",
+                    padding: "16px",
+                    color: "#713200",
+                    background: "#ffffff",
+                  },
+                  iconTheme: {
+                    primary: "#713200",
+                    secondary: "#FFFAEE",
+                  },
+                });
+              }
+            }
+            else {
               const newFriendship: CreateFriendshipInput = {
                 contactId: res.data.userByEmail.items[0].owner,
                 status: FriendshipStatus.PENDING,

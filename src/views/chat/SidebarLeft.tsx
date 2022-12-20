@@ -522,7 +522,6 @@ const SidebarLeft = (props: ChatSidebarLeftType) => {
                 horizontal: "right",
               }}
               sx={{ mr: 4.5 }}
-              onClick={handleUserProfileLeftSidebarToggle}
               badgeContent={
                 <Box
                   component="span"

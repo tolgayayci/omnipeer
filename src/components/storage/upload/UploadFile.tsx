@@ -25,6 +25,8 @@ import { Web3Storage } from "web3.storage";
 import { API, graphqlOperation } from "aws-amplify";
 import { createStorage } from "src/graphql/mutations";
 
+import StorageTable from "./StorageTable";
+
 function getAccessToken() {
   // If you're just testing, you can paste in a token
   // and uncomment the following line:
@@ -75,19 +77,17 @@ const UploadFile = () => {
   // ** State
   const [files, setFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isNewUpload, setIsNewUpload] = useState(false);
 
   // ** Hooks
   const { getRootProps, getInputProps } = useDropzone({
     maxFiles: 1,
-    maxSize: 100000000,
-    accept: {
-      "image/*": [".png", ".jpg", ".jpeg", ".gif"],
-    },
+    maxSize: 1073741824,
     onDrop: (acceptedFiles: File[]) => {
       setFiles(acceptedFiles.map((file: File) => Object.assign(file)));
     },
     onDropRejected: () => {
-      toast.error("You can only upload 1 file & maximum size of 2 MB.", {
+      toast.error("You can only upload 1 file & maximum size of 1 GB.", {
         duration: 2000,
       });
     },
@@ -122,11 +122,6 @@ const UploadFile = () => {
         <div className="file-preview">{renderFilePreview(file)}</div>
         <div>
           <Typography className="file-name">{file.name}</Typography>
-          {/* <Typography className='file-size' variant='body2'>
-            {Math.round(file.size / 100) / 10 > 1000
-              ? {(Math.round(file.size / 100) / 10000).toFixed(1)} mb
-              : {(Math.round(file.size / 100) / 10).toFixed(1)} kb}
-          </Typography> */}
         </div>
       </div>
       <IconButton onClick={() => handleRemoveFile(file)}>
@@ -167,10 +162,9 @@ const UploadFile = () => {
   const handleUploadFile = () => {
     // ** Handle upload file heretoast.success('File uploaded successfully.')
     files.map((file: FileProp) =>
-      storeWithProgress().then((data) => {
+      storeWithProgress().then(async (data) => {
         setLoading(false);
-        toast.success("File uploaded successfully.");
-        const newStorage = API.graphql(
+        await API.graphql(
           graphqlOperation(createStorage, {
             input: {
               cid: data,
@@ -179,7 +173,25 @@ const UploadFile = () => {
               size: file.size,
             },
           })
-        ); // equivalent to above example
+        )
+        .then(() => {
+          toast.success("Your file uploaded succesfully!", {
+            position: "top-right",
+            style: {
+              border: "1px solid #713200",
+              padding: "16px",
+              color: "#713200",
+              background: "#ffffff",
+            },
+            iconTheme: {
+              primary: "#713200",
+              secondary: "#FFFAEE",
+            },
+          });
+
+          handleRemoveAllFiles();
+          setIsNewUpload(true);
+        })
       })
     );
   };
@@ -195,6 +207,7 @@ const UploadFile = () => {
             alignItems: "center",
           }}
         >
+          <Img width={300} alt='Upload img' src='https://pixinvent.com/demo/materialize-mui-react-nextjs-admin-template/demo-3/images/misc/upload.png' />
           <Box
             sx={{
               display: "flex",
@@ -206,10 +219,10 @@ const UploadFile = () => {
               Drop files here or click to upload.
             </HeadingTypography>
             <Typography color="textSecondary">
-              Allowed *.jpeg, *.jpg, *.png, *.gif
+              Allowed all file types which are less than 1 GB.
             </Typography>
             <Typography color="textSecondary">
-              Max 1 file and max size of 100 MB
+              Don't forget to click on upload button.
             </Typography>
           </Box>
         </Box>
@@ -234,6 +247,7 @@ const UploadFile = () => {
           </div>
         </Fragment>
       ) : null}
+      <StorageTable isNewUpload={isNewUpload} />
     </Fragment>
   );
 };

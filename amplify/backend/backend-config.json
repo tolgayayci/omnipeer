@@ -6,7 +6,7 @@
       "dependsOn": [
         {
           "category": "auth",
-          "resourceName": "omnipeer53799b07",
+          "resourceName": "omnipeer5dfb166f",
           "attributes": [
             "UserPoolId"
           ]
@@ -17,28 +17,16 @@
           "defaultAuthentication": {
             "authenticationType": "AMAZON_COGNITO_USER_POOLS",
             "userPoolConfig": {
-              "userPoolId": "authomnipeer53799b07"
+              "userPoolId": "authomnipeer5dfb166f"
             }
           },
-          "additionalAuthenticationProviders": [
-            {
-              "authenticationType": "API_KEY",
-              "apiKeyConfig": {
-                "apiKeyExpirationDays": 60,
-                "apiKeyExpirationDate": "2023-01-26T19:27:21.887Z",
-                "description": "peerIdApi"
-              }
-            },
-            {
-              "authenticationType": "AWS_IAM"
-            }
-          ]
+          "additionalAuthenticationProviders": []
         }
       }
     }
   },
   "auth": {
-    "omnipeer53799b07": {
+    "omnipeer5dfb166f": {
       "service": "Cognito",
       "providerPlugin": "awscloudformation",
       "dependsOn": [],
@@ -49,7 +37,8 @@
           "EMAIL"
         ],
         "signupAttributes": [
-          "EMAIL"
+          "EMAIL",
+          "NAME"
         ],
         "passwordProtectionSettings": {
           "passwordPolicyMinLength": 8,

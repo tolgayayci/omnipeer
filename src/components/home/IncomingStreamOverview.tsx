@@ -106,7 +106,7 @@ const IncomingStreamOverview = () => {
     const user = await Auth.currentAuthenticatedUser();
 
     let size = 0;
-    let date = new Date();
+    let date = lastUpload || new Date();
 
     await API.graphql(graphqlOperation(listStreams, { filter: {
       and: [
@@ -126,11 +126,14 @@ const IncomingStreamOverview = () => {
 
         });
 
-        console.log(date)
-
         setTotalUploadedSize(formatBytes(size));
         setTotalUploadedFiles(res.data.listStreams.items.length);
-        setLastUpload(date.getDate().toString() + "/" + (date.getMonth() + 1).toString() + "/" + date.getFullYear().toString());
+
+        if(date !== lastUpload){
+          const finalDate = new Date(date);
+          setLastUpload(finalDate.getDate().toString() + "/" + (finalDate.getMonth() + 1).toString() + "/" + finalDate.getFullYear().toString());
+        }
+
       })
       // @ts-ignore
       .catch((err) => {

@@ -15,8 +15,18 @@ import DropzoneWrapper from "src/@core/styles/libs/react-dropzone";
 
 const StorageUpload = () => {
   return (
-    <DropzoneWrapper>
-      <Grid container spacing={6}>
+      <Grid 
+        container
+        spacing={6}
+        display="flex"
+        flexDirection="column"
+        justifyContent="center"
+        alignContent="center"
+        flexWrap="nowrap"
+        sx={{
+          minHeight: "100%",
+        }}
+      >
         <PageHeader
           title={
             <Typography variant="h5">
@@ -39,13 +49,11 @@ const StorageUpload = () => {
           </Alert>
         </Grid>
         <Grid item xs={12}>
-          <UploadFile />
-        </Grid>
-        <Grid item xs={12}>
-          <StorageTable />
+          <DropzoneWrapper>
+            <UploadFile />
+          </DropzoneWrapper>
         </Grid>
       </Grid>
-    </DropzoneWrapper>
   );
 };
 

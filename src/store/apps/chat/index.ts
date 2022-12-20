@@ -41,6 +41,8 @@ export const fetchUserProfile = createAsyncThunk(
 
     const profileUserData = result.data.getUser;
 
+    console.log(profileUserData)
+
     return profileUserData;
   }
 );
@@ -170,8 +172,6 @@ export const selectChat = createAsyncThunk(
 export const sendMsg = createAsyncThunk(
   "appChat/sendMsg",
   async (obj: SendMsgParamsType, { dispatch }) => {
-    console.log("SEND MSG");
-    console.log(obj);
 
     const user = await Auth.currentAuthenticatedUser();
 
@@ -180,12 +180,12 @@ export const sendMsg = createAsyncThunk(
     const newMessageData = {
       // @ts-ignore
       senderId: user.attributes.sub,
-      time: new Date("Mon Dec 11 2018 07:46:15 GMT+0000 (GMT)"),
+      time: new Date(),
       message: obj.message,
       feedback: {
         isSent: true,
-        isSeen: false,
-        isDelivered: false,
+        isSeen: true,
+        isDelivered: true,
       },
     };
 
@@ -211,26 +211,26 @@ export const sendMsg = createAsyncThunk(
         owners: [user.attributes.sub, obj.contact.owner],
       };
 
-      const newChatData = await API.graphql(
+      await API.graphql(
         graphqlOperation(createChat, { input: newChat })
+      //@ts-ignore
+      ).then(async (result) => {
         //@ts-ignore
-      ).catch((err) => {
+        await dispatch(selectChat([result.data.createChat.id, obj.contact?.id]));
+
+        await dispatch(fetchChatsContacts());
+
+        //set active chat
+        //@ts-ignore
+        activeChat = result.data.createChat;
+      })
+      //@ts-ignore
+      .catch((err) => {
         console.log(err);
       });
 
-      console.log(newChatData);
-
-      //@ts-ignore
-      await dispatch(selectChat([newChat.data.createChat.id, obj.contact?.id]));
-
-      dispatch(fetchChatsContacts());
-
-      //set active chat
-      //@ts-ignore
-      activeChat = newChat.data.createChat;
+      
     } else {
-      console.log("CHAT EXIST");
-
       //@ts-ignore
       const parsedActive = JSON.parse(activeChat?.chat);
 

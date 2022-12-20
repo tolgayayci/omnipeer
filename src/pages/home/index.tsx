@@ -88,12 +88,7 @@ const Home = () => {
         </Grid>
       </Grid>
       <Grid item xs={12} md={6} lg={12}>
-        {isThereFriends ? (
           <PendingRequests />
-        ) : (
-          null
-        )
-        }
       </Grid>
     </Grid>
   );

@@ -418,29 +418,13 @@ export type ModelStreamFilterInput = {
   userStreamsId?: ModelIDInput | null,
 };
 
-export type ModelSubscriptionChatFilterInput = {
-  id?: ModelSubscriptionIDInput | null,
-  senderId?: ModelSubscriptionStringInput | null,
-  userId?: ModelSubscriptionStringInput | null,
-  unseenMsgs?: ModelSubscriptionIntInput | null,
-  chat?: ModelSubscriptionStringInput | null,
-  and?: Array< ModelSubscriptionChatFilterInput | null > | null,
-  or?: Array< ModelSubscriptionChatFilterInput | null > | null,
-};
-
-export type ModelSubscriptionIDInput = {
-  ne?: string | null,
-  eq?: string | null,
-  le?: string | null,
-  lt?: string | null,
-  ge?: string | null,
-  gt?: string | null,
-  contains?: string | null,
-  notContains?: string | null,
-  between?: Array< string | null > | null,
-  beginsWith?: string | null,
-  in?: Array< string | null > | null,
-  notIn?: Array< string | null > | null,
+export type ModelSubscriptionStorageFilterInput = {
+  cid?: ModelSubscriptionStringInput | null,
+  name?: ModelSubscriptionStringInput | null,
+  type?: ModelSubscriptionStringInput | null,
+  size?: ModelSubscriptionIntInput | null,
+  and?: Array< ModelSubscriptionStorageFilterInput | null > | null,
+  or?: Array< ModelSubscriptionStorageFilterInput | null > | null,
 };
 
 export type ModelSubscriptionStringInput = {
@@ -470,15 +454,6 @@ export type ModelSubscriptionIntInput = {
   notIn?: Array< number | null > | null,
 };
 
-export type ModelSubscriptionStorageFilterInput = {
-  cid?: ModelSubscriptionStringInput | null,
-  name?: ModelSubscriptionStringInput | null,
-  type?: ModelSubscriptionStringInput | null,
-  size?: ModelSubscriptionIntInput | null,
-  and?: Array< ModelSubscriptionStorageFilterInput | null > | null,
-  or?: Array< ModelSubscriptionStorageFilterInput | null > | null,
-};
-
 export type ModelSubscriptionUserFilterInput = {
   email?: ModelSubscriptionStringInput | null,
   peerId?: ModelSubscriptionStringInput | null,
@@ -489,6 +464,31 @@ export type ModelSubscriptionUserFilterInput = {
   avatar?: ModelSubscriptionStringInput | null,
   and?: Array< ModelSubscriptionUserFilterInput | null > | null,
   or?: Array< ModelSubscriptionUserFilterInput | null > | null,
+};
+
+export type ModelSubscriptionChatFilterInput = {
+  id?: ModelSubscriptionIDInput | null,
+  senderId?: ModelSubscriptionStringInput | null,
+  userId?: ModelSubscriptionStringInput | null,
+  unseenMsgs?: ModelSubscriptionIntInput | null,
+  chat?: ModelSubscriptionStringInput | null,
+  and?: Array< ModelSubscriptionChatFilterInput | null > | null,
+  or?: Array< ModelSubscriptionChatFilterInput | null > | null,
+};
+
+export type ModelSubscriptionIDInput = {
+  ne?: string | null,
+  eq?: string | null,
+  le?: string | null,
+  lt?: string | null,
+  ge?: string | null,
+  gt?: string | null,
+  contains?: string | null,
+  notContains?: string | null,
+  between?: Array< string | null > | null,
+  beginsWith?: string | null,
+  in?: Array< string | null > | null,
+  notIn?: Array< string | null > | null,
 };
 
 export type ModelSubscriptionFriendshipFilterInput = {
@@ -602,19 +602,6 @@ export type CreateUserMutation = {
         __typename: "Friendship",
         id: string,
         contactId: string,
-        contact?:  {
-          __typename: "User",
-          owner: string,
-          email: string,
-          peerId?: string | null,
-          fullName?: string | null,
-          about?: string | null,
-          role?: string | null,
-          nickname?: string | null,
-          avatar?: string | null,
-          createdAt: string,
-          updatedAt: string,
-        } | null,
         status: FriendshipStatus,
         owners: Array< string >,
         createdAt: string,
@@ -694,19 +681,6 @@ export type UpdateUserMutation = {
         __typename: "Friendship",
         id: string,
         contactId: string,
-        contact?:  {
-          __typename: "User",
-          owner: string,
-          email: string,
-          peerId?: string | null,
-          fullName?: string | null,
-          about?: string | null,
-          role?: string | null,
-          nickname?: string | null,
-          avatar?: string | null,
-          createdAt: string,
-          updatedAt: string,
-        } | null,
         status: FriendshipStatus,
         owners: Array< string >,
         createdAt: string,
@@ -786,19 +760,6 @@ export type DeleteUserMutation = {
         __typename: "Friendship",
         id: string,
         contactId: string,
-        contact?:  {
-          __typename: "User",
-          owner: string,
-          email: string,
-          peerId?: string | null,
-          fullName?: string | null,
-          about?: string | null,
-          role?: string | null,
-          nickname?: string | null,
-          avatar?: string | null,
-          createdAt: string,
-          updatedAt: string,
-        } | null,
         status: FriendshipStatus,
         owners: Array< string >,
         createdAt: string,
@@ -920,60 +881,18 @@ export type CreateFriendshipMutation = {
       avatar?: string | null,
       chats?:  {
         __typename: "ModelChatConnection",
-        items:  Array< {
-          __typename: "Chat",
-          id: string,
-          senderId: string,
-          userId: string,
-          unseenMsgs: number,
-          chat?: Array< string | null > | null,
-          owners: Array< string >,
-          createdAt: string,
-          updatedAt: string,
-        } | null >,
         nextToken?: string | null,
       } | null,
       friends?:  {
         __typename: "ModelFriendshipConnection",
-        items:  Array< {
-          __typename: "Friendship",
-          id: string,
-          contactId: string,
-          status: FriendshipStatus,
-          owners: Array< string >,
-          createdAt: string,
-          updatedAt: string,
-        } | null >,
         nextToken?: string | null,
       } | null,
       storage?:  {
         __typename: "ModelStorageConnection",
-        items:  Array< {
-          __typename: "Storage",
-          cid: string,
-          name: string,
-          type: string,
-          size: number,
-          createdAt: string,
-          updatedAt: string,
-          userStorageId?: string | null,
-          owner?: string | null,
-        } | null >,
         nextToken?: string | null,
       } | null,
       streams?:  {
         __typename: "ModelStreamConnection",
-        items:  Array< {
-          __typename: "Stream",
-          id: string,
-          name: string,
-          size: number,
-          status: StreamStatus,
-          owners: Array< string >,
-          createdAt: string,
-          updatedAt: string,
-          userStreamsId?: string | null,
-        } | null >,
         nextToken?: string | null,
       } | null,
       createdAt: string,
@@ -1008,60 +927,18 @@ export type UpdateFriendshipMutation = {
       avatar?: string | null,
       chats?:  {
         __typename: "ModelChatConnection",
-        items:  Array< {
-          __typename: "Chat",
-          id: string,
-          senderId: string,
-          userId: string,
-          unseenMsgs: number,
-          chat?: Array< string | null > | null,
-          owners: Array< string >,
-          createdAt: string,
-          updatedAt: string,
-        } | null >,
         nextToken?: string | null,
       } | null,
       friends?:  {
         __typename: "ModelFriendshipConnection",
-        items:  Array< {
-          __typename: "Friendship",
-          id: string,
-          contactId: string,
-          status: FriendshipStatus,
-          owners: Array< string >,
-          createdAt: string,
-          updatedAt: string,
-        } | null >,
         nextToken?: string | null,
       } | null,
       storage?:  {
         __typename: "ModelStorageConnection",
-        items:  Array< {
-          __typename: "Storage",
-          cid: string,
-          name: string,
-          type: string,
-          size: number,
-          createdAt: string,
-          updatedAt: string,
-          userStorageId?: string | null,
-          owner?: string | null,
-        } | null >,
         nextToken?: string | null,
       } | null,
       streams?:  {
         __typename: "ModelStreamConnection",
-        items:  Array< {
-          __typename: "Stream",
-          id: string,
-          name: string,
-          size: number,
-          status: StreamStatus,
-          owners: Array< string >,
-          createdAt: string,
-          updatedAt: string,
-          userStreamsId?: string | null,
-        } | null >,
         nextToken?: string | null,
       } | null,
       createdAt: string,
@@ -1096,60 +973,18 @@ export type DeleteFriendshipMutation = {
       avatar?: string | null,
       chats?:  {
         __typename: "ModelChatConnection",
-        items:  Array< {
-          __typename: "Chat",
-          id: string,
-          senderId: string,
-          userId: string,
-          unseenMsgs: number,
-          chat?: Array< string | null > | null,
-          owners: Array< string >,
-          createdAt: string,
-          updatedAt: string,
-        } | null >,
         nextToken?: string | null,
       } | null,
       friends?:  {
         __typename: "ModelFriendshipConnection",
-        items:  Array< {
-          __typename: "Friendship",
-          id: string,
-          contactId: string,
-          status: FriendshipStatus,
-          owners: Array< string >,
-          createdAt: string,
-          updatedAt: string,
-        } | null >,
         nextToken?: string | null,
       } | null,
       storage?:  {
         __typename: "ModelStorageConnection",
-        items:  Array< {
-          __typename: "Storage",
-          cid: string,
-          name: string,
-          type: string,
-          size: number,
-          createdAt: string,
-          updatedAt: string,
-          userStorageId?: string | null,
-          owner?: string | null,
-        } | null >,
         nextToken?: string | null,
       } | null,
       streams?:  {
         __typename: "ModelStreamConnection",
-        items:  Array< {
-          __typename: "Stream",
-          id: string,
-          name: string,
-          size: number,
-          status: StreamStatus,
-          owners: Array< string >,
-          createdAt: string,
-          updatedAt: string,
-          userStreamsId?: string | null,
-        } | null >,
         nextToken?: string | null,
       } | null,
       createdAt: string,
@@ -1299,19 +1134,6 @@ export type GetUserQuery = {
         __typename: "Friendship",
         id: string,
         contactId: string,
-        contact?:  {
-          __typename: "User",
-          owner: string,
-          email: string,
-          peerId?: string | null,
-          fullName?: string | null,
-          about?: string | null,
-          role?: string | null,
-          nickname?: string | null,
-          avatar?: string | null,
-          createdAt: string,
-          updatedAt: string,
-        } | null,
         status: FriendshipStatus,
         owners: Array< string >,
         createdAt: string,
@@ -1377,146 +1199,18 @@ export type ListUsersQuery = {
       avatar?: string | null,
       chats?:  {
         __typename: "ModelChatConnection",
-        items:  Array< {
-          __typename: "Chat",
-          id: string,
-          senderId: string,
-          userId: string,
-          unseenMsgs: number,
-          chat?: Array< string | null > | null,
-          owners: Array< string >,
-          createdAt: string,
-          updatedAt: string,
-        } | null >,
         nextToken?: string | null,
       } | null,
       friends?:  {
         __typename: "ModelFriendshipConnection",
-        items:  Array< {
-          __typename: "Friendship",
-          id: string,
-          contactId: string,
-          status: FriendshipStatus,
-          owners: Array< string >,
-          createdAt: string,
-          updatedAt: string,
-        } | null >,
         nextToken?: string | null,
       } | null,
       storage?:  {
         __typename: "ModelStorageConnection",
-        items:  Array< {
-          __typename: "Storage",
-          cid: string,
-          name: string,
-          type: string,
-          size: number,
-          createdAt: string,
-          updatedAt: string,
-          userStorageId?: string | null,
-          owner?: string | null,
-        } | null >,
         nextToken?: string | null,
       } | null,
       streams?:  {
         __typename: "ModelStreamConnection",
-        items:  Array< {
-          __typename: "Stream",
-          id: string,
-          name: string,
-          size: number,
-          status: StreamStatus,
-          owners: Array< string >,
-          createdAt: string,
-          updatedAt: string,
-          userStreamsId?: string | null,
-        } | null >,
-        nextToken?: string | null,
-      } | null,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
-    nextToken?: string | null,
-  } | null,
-};
-
-export type UserByEmailQueryVariables = {
-  email: string,
-  sortDirection?: ModelSortDirection | null,
-  filter?: ModelUserFilterInput | null,
-  limit?: number | null,
-  nextToken?: string | null,
-};
-
-export type UserByEmailQuery = {
-  userByEmail?:  {
-    __typename: "ModelUserConnection",
-    items:  Array< {
-      __typename: "User",
-      owner: string,
-      email: string,
-      peerId?: string | null,
-      fullName?: string | null,
-      about?: string | null,
-      role?: string | null,
-      nickname?: string | null,
-      avatar?: string | null,
-      chats?:  {
-        __typename: "ModelChatConnection",
-        items:  Array< {
-          __typename: "Chat",
-          id: string,
-          senderId: string,
-          userId: string,
-          unseenMsgs: number,
-          chat?: Array< string | null > | null,
-          owners: Array< string >,
-          createdAt: string,
-          updatedAt: string,
-        } | null >,
-        nextToken?: string | null,
-      } | null,
-      friends?:  {
-        __typename: "ModelFriendshipConnection",
-        items:  Array< {
-          __typename: "Friendship",
-          id: string,
-          contactId: string,
-          status: FriendshipStatus,
-          owners: Array< string >,
-          createdAt: string,
-          updatedAt: string,
-        } | null >,
-        nextToken?: string | null,
-      } | null,
-      storage?:  {
-        __typename: "ModelStorageConnection",
-        items:  Array< {
-          __typename: "Storage",
-          cid: string,
-          name: string,
-          type: string,
-          size: number,
-          createdAt: string,
-          updatedAt: string,
-          userStorageId?: string | null,
-          owner?: string | null,
-        } | null >,
-        nextToken?: string | null,
-      } | null,
-      streams?:  {
-        __typename: "ModelStreamConnection",
-        items:  Array< {
-          __typename: "Stream",
-          id: string,
-          name: string,
-          size: number,
-          status: StreamStatus,
-          owners: Array< string >,
-          createdAt: string,
-          updatedAt: string,
-          userStreamsId?: string | null,
-        } | null >,
         nextToken?: string | null,
       } | null,
       createdAt: string,
@@ -1570,32 +1264,6 @@ export type ListChatsQuery = {
   } | null,
 };
 
-export type ChatsByUserIdQueryVariables = {
-  userId: string,
-  sortDirection?: ModelSortDirection | null,
-  filter?: ModelChatFilterInput | null,
-  limit?: number | null,
-  nextToken?: string | null,
-};
-
-export type ChatsByUserIdQuery = {
-  chatsByUserId?:  {
-    __typename: "ModelChatConnection",
-    items:  Array< {
-      __typename: "Chat",
-      id: string,
-      senderId: string,
-      userId: string,
-      unseenMsgs: number,
-      chat?: Array< string | null > | null,
-      owners: Array< string >,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
-    nextToken?: string | null,
-  } | null,
-};
-
 export type GetFriendshipQueryVariables = {
   id: string,
 };
@@ -1617,60 +1285,18 @@ export type GetFriendshipQuery = {
       avatar?: string | null,
       chats?:  {
         __typename: "ModelChatConnection",
-        items:  Array< {
-          __typename: "Chat",
-          id: string,
-          senderId: string,
-          userId: string,
-          unseenMsgs: number,
-          chat?: Array< string | null > | null,
-          owners: Array< string >,
-          createdAt: string,
-          updatedAt: string,
-        } | null >,
         nextToken?: string | null,
       } | null,
       friends?:  {
         __typename: "ModelFriendshipConnection",
-        items:  Array< {
-          __typename: "Friendship",
-          id: string,
-          contactId: string,
-          status: FriendshipStatus,
-          owners: Array< string >,
-          createdAt: string,
-          updatedAt: string,
-        } | null >,
         nextToken?: string | null,
       } | null,
       storage?:  {
         __typename: "ModelStorageConnection",
-        items:  Array< {
-          __typename: "Storage",
-          cid: string,
-          name: string,
-          type: string,
-          size: number,
-          createdAt: string,
-          updatedAt: string,
-          userStorageId?: string | null,
-          owner?: string | null,
-        } | null >,
         nextToken?: string | null,
       } | null,
       streams?:  {
         __typename: "ModelStreamConnection",
-        items:  Array< {
-          __typename: "Stream",
-          id: string,
-          name: string,
-          size: number,
-          status: StreamStatus,
-          owners: Array< string >,
-          createdAt: string,
-          updatedAt: string,
-          userStreamsId?: string | null,
-        } | null >,
         nextToken?: string | null,
       } | null,
       createdAt: string,
@@ -1708,75 +1334,6 @@ export type ListFriendshipsQuery = {
         role?: string | null,
         nickname?: string | null,
         avatar?: string | null,
-        chats?:  {
-          __typename: "ModelChatConnection",
-          nextToken?: string | null,
-        } | null,
-        friends?:  {
-          __typename: "ModelFriendshipConnection",
-          nextToken?: string | null,
-        } | null,
-        storage?:  {
-          __typename: "ModelStorageConnection",
-          nextToken?: string | null,
-        } | null,
-        streams?:  {
-          __typename: "ModelStreamConnection",
-          nextToken?: string | null,
-        } | null,
-        createdAt: string,
-        updatedAt: string,
-      } | null,
-      status: FriendshipStatus,
-      owners: Array< string >,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
-    nextToken?: string | null,
-  } | null,
-};
-
-export type FriendsByUserIdQueryVariables = {
-  contactId: string,
-  sortDirection?: ModelSortDirection | null,
-  filter?: ModelFriendshipFilterInput | null,
-  limit?: number | null,
-  nextToken?: string | null,
-};
-
-export type FriendsByUserIdQuery = {
-  friendsByUserId?:  {
-    __typename: "ModelFriendshipConnection",
-    items:  Array< {
-      __typename: "Friendship",
-      id: string,
-      contactId: string,
-      contact?:  {
-        __typename: "User",
-        owner: string,
-        email: string,
-        peerId?: string | null,
-        fullName?: string | null,
-        about?: string | null,
-        role?: string | null,
-        nickname?: string | null,
-        avatar?: string | null,
-        chats?:  {
-          __typename: "ModelChatConnection",
-          nextToken?: string | null,
-        } | null,
-        friends?:  {
-          __typename: "ModelFriendshipConnection",
-          nextToken?: string | null,
-        } | null,
-        storage?:  {
-          __typename: "ModelStorageConnection",
-          nextToken?: string | null,
-        } | null,
-        streams?:  {
-          __typename: "ModelStreamConnection",
-          nextToken?: string | null,
-        } | null,
         createdAt: string,
         updatedAt: string,
       } | null,
@@ -1833,57 +1390,110 @@ export type ListStreamsQuery = {
   } | null,
 };
 
-export type OnCreateChatSubscriptionVariables = {
-  filter?: ModelSubscriptionChatFilterInput | null,
+export type UserByEmailQueryVariables = {
+  email: string,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelUserFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
 };
 
-export type OnCreateChatSubscription = {
-  onCreateChat?:  {
-    __typename: "Chat",
-    id: string,
-    senderId: string,
-    userId: string,
-    unseenMsgs: number,
-    chat?: Array< string | null > | null,
-    owners: Array< string >,
-    createdAt: string,
-    updatedAt: string,
+export type UserByEmailQuery = {
+  userByEmail?:  {
+    __typename: "ModelUserConnection",
+    items:  Array< {
+      __typename: "User",
+      owner: string,
+      email: string,
+      peerId?: string | null,
+      fullName?: string | null,
+      about?: string | null,
+      role?: string | null,
+      nickname?: string | null,
+      avatar?: string | null,
+      chats?:  {
+        __typename: "ModelChatConnection",
+        nextToken?: string | null,
+      } | null,
+      friends?:  {
+        __typename: "ModelFriendshipConnection",
+        nextToken?: string | null,
+      } | null,
+      storage?:  {
+        __typename: "ModelStorageConnection",
+        nextToken?: string | null,
+      } | null,
+      streams?:  {
+        __typename: "ModelStreamConnection",
+        nextToken?: string | null,
+      } | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
   } | null,
 };
 
-export type OnUpdateChatSubscriptionVariables = {
-  filter?: ModelSubscriptionChatFilterInput | null,
+export type ChatsByUserIdQueryVariables = {
+  userId: string,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelChatFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
 };
 
-export type OnUpdateChatSubscription = {
-  onUpdateChat?:  {
-    __typename: "Chat",
-    id: string,
-    senderId: string,
-    userId: string,
-    unseenMsgs: number,
-    chat?: Array< string | null > | null,
-    owners: Array< string >,
-    createdAt: string,
-    updatedAt: string,
+export type ChatsByUserIdQuery = {
+  chatsByUserId?:  {
+    __typename: "ModelChatConnection",
+    items:  Array< {
+      __typename: "Chat",
+      id: string,
+      senderId: string,
+      userId: string,
+      unseenMsgs: number,
+      chat?: Array< string | null > | null,
+      owners: Array< string >,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
   } | null,
 };
 
-export type OnDeleteChatSubscriptionVariables = {
-  filter?: ModelSubscriptionChatFilterInput | null,
+export type FriendsByUserIdQueryVariables = {
+  contactId: string,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelFriendshipFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
 };
 
-export type OnDeleteChatSubscription = {
-  onDeleteChat?:  {
-    __typename: "Chat",
-    id: string,
-    senderId: string,
-    userId: string,
-    unseenMsgs: number,
-    chat?: Array< string | null > | null,
-    owners: Array< string >,
-    createdAt: string,
-    updatedAt: string,
+export type FriendsByUserIdQuery = {
+  friendsByUserId?:  {
+    __typename: "ModelFriendshipConnection",
+    items:  Array< {
+      __typename: "Friendship",
+      id: string,
+      contactId: string,
+      contact?:  {
+        __typename: "User",
+        owner: string,
+        email: string,
+        peerId?: string | null,
+        fullName?: string | null,
+        about?: string | null,
+        role?: string | null,
+        nickname?: string | null,
+        avatar?: string | null,
+        createdAt: string,
+        updatedAt: string,
+      } | null,
+      status: FriendshipStatus,
+      owners: Array< string >,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
   } | null,
 };
 
@@ -1981,19 +1591,6 @@ export type OnCreateUserSubscription = {
         __typename: "Friendship",
         id: string,
         contactId: string,
-        contact?:  {
-          __typename: "User",
-          owner: string,
-          email: string,
-          peerId?: string | null,
-          fullName?: string | null,
-          about?: string | null,
-          role?: string | null,
-          nickname?: string | null,
-          avatar?: string | null,
-          createdAt: string,
-          updatedAt: string,
-        } | null,
         status: FriendshipStatus,
         owners: Array< string >,
         createdAt: string,
@@ -2073,19 +1670,6 @@ export type OnUpdateUserSubscription = {
         __typename: "Friendship",
         id: string,
         contactId: string,
-        contact?:  {
-          __typename: "User",
-          owner: string,
-          email: string,
-          peerId?: string | null,
-          fullName?: string | null,
-          about?: string | null,
-          role?: string | null,
-          nickname?: string | null,
-          avatar?: string | null,
-          createdAt: string,
-          updatedAt: string,
-        } | null,
         status: FriendshipStatus,
         owners: Array< string >,
         createdAt: string,
@@ -2165,19 +1749,6 @@ export type OnDeleteUserSubscription = {
         __typename: "Friendship",
         id: string,
         contactId: string,
-        contact?:  {
-          __typename: "User",
-          owner: string,
-          email: string,
-          peerId?: string | null,
-          fullName?: string | null,
-          about?: string | null,
-          role?: string | null,
-          nickname?: string | null,
-          avatar?: string | null,
-          createdAt: string,
-          updatedAt: string,
-        } | null,
         status: FriendshipStatus,
         owners: Array< string >,
         createdAt: string,
@@ -2220,6 +1791,60 @@ export type OnDeleteUserSubscription = {
   } | null,
 };
 
+export type OnCreateChatSubscriptionVariables = {
+  filter?: ModelSubscriptionChatFilterInput | null,
+};
+
+export type OnCreateChatSubscription = {
+  onCreateChat?:  {
+    __typename: "Chat",
+    id: string,
+    senderId: string,
+    userId: string,
+    unseenMsgs: number,
+    chat?: Array< string | null > | null,
+    owners: Array< string >,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnUpdateChatSubscriptionVariables = {
+  filter?: ModelSubscriptionChatFilterInput | null,
+};
+
+export type OnUpdateChatSubscription = {
+  onUpdateChat?:  {
+    __typename: "Chat",
+    id: string,
+    senderId: string,
+    userId: string,
+    unseenMsgs: number,
+    chat?: Array< string | null > | null,
+    owners: Array< string >,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnDeleteChatSubscriptionVariables = {
+  filter?: ModelSubscriptionChatFilterInput | null,
+};
+
+export type OnDeleteChatSubscription = {
+  onDeleteChat?:  {
+    __typename: "Chat",
+    id: string,
+    senderId: string,
+    userId: string,
+    unseenMsgs: number,
+    chat?: Array< string | null > | null,
+    owners: Array< string >,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
 export type OnCreateFriendshipSubscriptionVariables = {
   filter?: ModelSubscriptionFriendshipFilterInput | null,
 };
@@ -2241,60 +1866,18 @@ export type OnCreateFriendshipSubscription = {
       avatar?: string | null,
       chats?:  {
         __typename: "ModelChatConnection",
-        items:  Array< {
-          __typename: "Chat",
-          id: string,
-          senderId: string,
-          userId: string,
-          unseenMsgs: number,
-          chat?: Array< string | null > | null,
-          owners: Array< string >,
-          createdAt: string,
-          updatedAt: string,
-        } | null >,
         nextToken?: string | null,
       } | null,
       friends?:  {
         __typename: "ModelFriendshipConnection",
-        items:  Array< {
-          __typename: "Friendship",
-          id: string,
-          contactId: string,
-          status: FriendshipStatus,
-          owners: Array< string >,
-          createdAt: string,
-          updatedAt: string,
-        } | null >,
         nextToken?: string | null,
       } | null,
       storage?:  {
         __typename: "ModelStorageConnection",
-        items:  Array< {
-          __typename: "Storage",
-          cid: string,
-          name: string,
-          type: string,
-          size: number,
-          createdAt: string,
-          updatedAt: string,
-          userStorageId?: string | null,
-          owner?: string | null,
-        } | null >,
         nextToken?: string | null,
       } | null,
       streams?:  {
         __typename: "ModelStreamConnection",
-        items:  Array< {
-          __typename: "Stream",
-          id: string,
-          name: string,
-          size: number,
-          status: StreamStatus,
-          owners: Array< string >,
-          createdAt: string,
-          updatedAt: string,
-          userStreamsId?: string | null,
-        } | null >,
         nextToken?: string | null,
       } | null,
       createdAt: string,
@@ -2328,60 +1911,18 @@ export type OnUpdateFriendshipSubscription = {
       avatar?: string | null,
       chats?:  {
         __typename: "ModelChatConnection",
-        items:  Array< {
-          __typename: "Chat",
-          id: string,
-          senderId: string,
-          userId: string,
-          unseenMsgs: number,
-          chat?: Array< string | null > | null,
-          owners: Array< string >,
-          createdAt: string,
-          updatedAt: string,
-        } | null >,
         nextToken?: string | null,
       } | null,
       friends?:  {
         __typename: "ModelFriendshipConnection",
-        items:  Array< {
-          __typename: "Friendship",
-          id: string,
-          contactId: string,
-          status: FriendshipStatus,
-          owners: Array< string >,
-          createdAt: string,
-          updatedAt: string,
-        } | null >,
         nextToken?: string | null,
       } | null,
       storage?:  {
         __typename: "ModelStorageConnection",
-        items:  Array< {
-          __typename: "Storage",
-          cid: string,
-          name: string,
-          type: string,
-          size: number,
-          createdAt: string,
-          updatedAt: string,
-          userStorageId?: string | null,
-          owner?: string | null,
-        } | null >,
         nextToken?: string | null,
       } | null,
       streams?:  {
         __typename: "ModelStreamConnection",
-        items:  Array< {
-          __typename: "Stream",
-          id: string,
-          name: string,
-          size: number,
-          status: StreamStatus,
-          owners: Array< string >,
-          createdAt: string,
-          updatedAt: string,
-          userStreamsId?: string | null,
-        } | null >,
         nextToken?: string | null,
       } | null,
       createdAt: string,
@@ -2415,60 +1956,18 @@ export type OnDeleteFriendshipSubscription = {
       avatar?: string | null,
       chats?:  {
         __typename: "ModelChatConnection",
-        items:  Array< {
-          __typename: "Chat",
-          id: string,
-          senderId: string,
-          userId: string,
-          unseenMsgs: number,
-          chat?: Array< string | null > | null,
-          owners: Array< string >,
-          createdAt: string,
-          updatedAt: string,
-        } | null >,
         nextToken?: string | null,
       } | null,
       friends?:  {
         __typename: "ModelFriendshipConnection",
-        items:  Array< {
-          __typename: "Friendship",
-          id: string,
-          contactId: string,
-          status: FriendshipStatus,
-          owners: Array< string >,
-          createdAt: string,
-          updatedAt: string,
-        } | null >,
         nextToken?: string | null,
       } | null,
       storage?:  {
         __typename: "ModelStorageConnection",
-        items:  Array< {
-          __typename: "Storage",
-          cid: string,
-          name: string,
-          type: string,
-          size: number,
-          createdAt: string,
-          updatedAt: string,
-          userStorageId?: string | null,
-          owner?: string | null,
-        } | null >,
         nextToken?: string | null,
       } | null,
       streams?:  {
         __typename: "ModelStreamConnection",
-        items:  Array< {
-          __typename: "Stream",
-          id: string,
-          name: string,
-          size: number,
-          status: StreamStatus,
-          owners: Array< string >,
-          createdAt: string,
-          updatedAt: string,
-          userStreamsId?: string | null,
-        } | null >,
         nextToken?: string | null,
       } | null,
       createdAt: string,

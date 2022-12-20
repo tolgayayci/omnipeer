@@ -9,14 +9,9 @@ import Typography from "@mui/material/Typography";
 import CardHeader from "@mui/material/CardHeader";
 import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 
-// ** Third Party Components
-import toast from "react-hot-toast";
-
 // ** Amplify Imports
 import { API, graphqlOperation } from "aws-amplify";
 import { listStorages } from "src/graphql/queries";
-
-import FallbackSpinner from "src/@core/components/spinner";
 
 interface StorageObj {
   cid: string;
@@ -25,12 +20,20 @@ interface StorageObj {
   size: number;
 }
 
-const StorageTable = () => {
+interface StorageTableProps {
+  isNewUpload: boolean;
+}
+
+const StorageTable = (props: StorageTableProps) => {
   // ** States
   const [pageSize, setPageSize] = useState<number>(10);
   const [storageData, setStorageData] = useState<any>([]);
+  const [isThereUploads, setIsThereUploads] = useState<boolean>(false);
 
   useEffect(() => {
+
+    console.log(props.isNewUpload)
+
     const fetchData = async () => {
       // TODO: set the nexttoken logic for pagination
       const allStorageObjects = await API.graphql({
@@ -42,11 +45,37 @@ const StorageTable = () => {
     };
 
     fetchData().then((result) => {
-      console.log("fetched data");
       // @ts-ignore
       setStorageData(result.data.listStorages.items);
+
+      if(result.data.listStorages.items.length > 0) {
+        setIsThereUploads(true);
+      }
     });
-  }, [pageSize]);
+  }, [pageSize, props.isNewUpload]);
+
+  // ** Function to format Bytes
+  // @ts-ignore
+  function formatBytes(bytes, decimals = 2) {
+    if (!+bytes) return '0 Bytes'
+
+    const k = 1024
+    const dm = decimals < 0 ? 0 : decimals
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
+  }
+
+  function formatDate(date: string) {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = `0${d.getMonth() + 1}`.slice(-2);
+    const _date = d.getDate();
+    const time = `${d.getHours()}:${(d.getMinutes()<10?'0':'') + d.getMinutes()}`;
+    return `${_date}/${month}/${year} - ${time}`;
+  }
 
   const columns: GridColDef[] = [
     {
@@ -78,7 +107,7 @@ const StorageTable = () => {
       headerName: "Size",
       renderCell: (params: GridRenderCellParams) => (
         <Typography variant="body2" sx={{ color: "text.primary" }}>
-          {params.row.size}
+          {formatBytes(params.row.size)}
         </Typography>
       ),
     },
@@ -89,7 +118,7 @@ const StorageTable = () => {
       headerName: "Upload Date",
       renderCell: (params: GridRenderCellParams) => (
         <Typography variant="body2" sx={{ color: "text.primary" }}>
-          {params.row.createdAt}
+          {formatDate(params.row.createdAt)}
         </Typography>
       ),
     },
@@ -104,9 +133,10 @@ const StorageTable = () => {
             size="small"
             variant="outlined"
             color="success"
-            onClick={() => console.log("share")}
+            onClick={() => window.open("https://w3s.link/ipfs/" + params.row.cid, "_blank")}
+            fullWidth
           >
-            Share
+            Show On IPFS
           </Button>
         );
       },
@@ -114,7 +144,9 @@ const StorageTable = () => {
   ];
 
   return (
-    <Card>
+    <>
+    {isThereUploads ? (
+      <Card sx={{mt: 8}}>
       <CardHeader title="Uploaded Objects" />
       <DataGrid
         autoHeight
@@ -127,6 +159,16 @@ const StorageTable = () => {
         onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
       />
     </Card>
+    ) : (
+      <Card sx={{mt:6 }}>
+        <Box sx={{p: 4}}>
+          <Typography sx={{color: "text.primary", fontSize: "17px"}}>
+            There is no uploads yet, you can upload a file by clicking on the area above
+          </Typography>
+        </Box>
+      </Card>
+    )}
+    </>
   );
 };
 

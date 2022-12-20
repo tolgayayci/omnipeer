@@ -22,13 +22,18 @@ export const getUserInfo = createAsyncThunk("user/getUser", async () => {
     const newUser = {
       owner: user.attributes.sub,
       email: user.attributes.email,
+      fullName: user.attributes.name,
     };
 
-    await API.graphql(graphqlOperation(createUser, { input: newUser }));
+    const createdUser = await API.graphql(graphqlOperation(createUser, { input: newUser }));
+
+    return createdUser.data.createUser;
+
   } else {
     //@ts-ignore
     return result.data.getUser;
   }
+
 });
 
 export const updateUserInfo = createAsyncThunk(

@@ -51,7 +51,6 @@ import "../../styles/globals.css";
 
 // ** Amplify Imports
 import { Amplify } from "aws-amplify";
-import { withAuthenticator } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
 import awsExports from "../aws-exports";
 
@@ -80,6 +79,8 @@ import { listStreams } from "src/graphql/queries";
 import { createStream, updateStream } from "src/graphql/mutations";
 import { UpdateStreamInput, StreamStatus } from "src/API";
 
+import { withAuthenticator } from "@aws-amplify/ui-react";
+
 Amplify.configure(awsExports);
 
 // ** Extend App Props with Emotion
@@ -103,21 +104,23 @@ if (themeConfig.routingLoader) {
   });
 }
 
+
 // ** Configure JSS & ClassName
 const App = (props: ExtendedAppProps) => {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
 
   const [isLoading, setIsLoading] = useState(true);
+
   const [isTransferRequest, setIsTransferRequest] = useState(false);
-  const [isTransferRequestApproved, setIsTransferRequestApproved] =
-    useState(false);
+  const [isTransferRequestApproved, setIsTransferRequestApproved] = useState(false);
   const [peerId, setPeerId] = useState<PeerId>();
   const chunkSize = useRef(0);
   const [value, setValue] = useState<number>(0);
-
+  
   // Variables
-  const getLayout =
-    Component.getLayout ?? ((page) => <UserLayout>{page}</UserLayout>);
+  const getLayout = Component.getLayout ?? (
+    (page) => <UserLayout>{page}</UserLayout>
+  );
 
   const setConfig = Component.setConfig ?? undefined;
 
@@ -126,7 +129,6 @@ const App = (props: ExtendedAppProps) => {
   });
 
   const updateStreamCompletedStatusInfo = async () => {
-
 
     //@ts-ignore
     console.log(store.getState().node.fileDetails[3])
@@ -149,7 +151,9 @@ const App = (props: ExtendedAppProps) => {
   };
 
   useEffect(() => {
-    store
+
+    if(true) {
+      store
       .dispatch(createNode())
       .then(() => {
         console.log("Node created");
@@ -358,6 +362,7 @@ const App = (props: ExtendedAppProps) => {
       .catch((err) => {
         console.log(err);
       });
+    }
   }, []);
 
   return (

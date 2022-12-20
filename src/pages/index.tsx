@@ -7,6 +7,8 @@ import { useRouter } from "next/router";
 // ** Spinner Import
 import Spinner from "src/@core/components/spinner";
 
+import { Auth } from 'aws-amplify'
+
 /**
  *  Set Home URL based on User Roles
  */

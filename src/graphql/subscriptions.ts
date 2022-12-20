@@ -2,48 +2,6 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-export const onCreateChat = /* GraphQL */ `
-  subscription OnCreateChat($filter: ModelSubscriptionChatFilterInput) {
-    onCreateChat(filter: $filter) {
-      id
-      senderId
-      userId
-      unseenMsgs
-      chat
-      owners
-      createdAt
-      updatedAt
-    }
-  }
-`;
-export const onUpdateChat = /* GraphQL */ `
-  subscription OnUpdateChat($filter: ModelSubscriptionChatFilterInput) {
-    onUpdateChat(filter: $filter) {
-      id
-      senderId
-      userId
-      unseenMsgs
-      chat
-      owners
-      createdAt
-      updatedAt
-    }
-  }
-`;
-export const onDeleteChat = /* GraphQL */ `
-  subscription OnDeleteChat($filter: ModelSubscriptionChatFilterInput) {
-    onDeleteChat(filter: $filter) {
-      id
-      senderId
-      userId
-      unseenMsgs
-      chat
-      owners
-      createdAt
-      updatedAt
-    }
-  }
-`;
 export const onCreateStorage = /* GraphQL */ `
   subscription OnCreateStorage(
     $filter: ModelSubscriptionStorageFilterInput
@@ -126,18 +84,6 @@ export const onCreateUser = /* GraphQL */ `
         items {
           id
           contactId
-          contact {
-            owner
-            email
-            peerId
-            fullName
-            about
-            role
-            nickname
-            avatar
-            createdAt
-            updatedAt
-          }
           status
           owners
           createdAt
@@ -207,18 +153,6 @@ export const onUpdateUser = /* GraphQL */ `
         items {
           id
           contactId
-          contact {
-            owner
-            email
-            peerId
-            fullName
-            about
-            role
-            nickname
-            avatar
-            createdAt
-            updatedAt
-          }
           status
           owners
           createdAt
@@ -288,18 +222,6 @@ export const onDeleteUser = /* GraphQL */ `
         items {
           id
           contactId
-          contact {
-            owner
-            email
-            peerId
-            fullName
-            about
-            role
-            nickname
-            avatar
-            createdAt
-            updatedAt
-          }
           status
           owners
           createdAt
@@ -338,6 +260,48 @@ export const onDeleteUser = /* GraphQL */ `
     }
   }
 `;
+export const onCreateChat = /* GraphQL */ `
+  subscription OnCreateChat($filter: ModelSubscriptionChatFilterInput) {
+    onCreateChat(filter: $filter) {
+      id
+      senderId
+      userId
+      unseenMsgs
+      chat
+      owners
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onUpdateChat = /* GraphQL */ `
+  subscription OnUpdateChat($filter: ModelSubscriptionChatFilterInput) {
+    onUpdateChat(filter: $filter) {
+      id
+      senderId
+      userId
+      unseenMsgs
+      chat
+      owners
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onDeleteChat = /* GraphQL */ `
+  subscription OnDeleteChat($filter: ModelSubscriptionChatFilterInput) {
+    onDeleteChat(filter: $filter) {
+      id
+      senderId
+      userId
+      unseenMsgs
+      chat
+      owners
+      createdAt
+      updatedAt
+    }
+  }
+`;
 export const onCreateFriendship = /* GraphQL */ `
   subscription OnCreateFriendship(
     $filter: ModelSubscriptionFriendshipFilterInput
@@ -355,53 +319,15 @@ export const onCreateFriendship = /* GraphQL */ `
         nickname
         avatar
         chats {
-          items {
-            id
-            senderId
-            userId
-            unseenMsgs
-            chat
-            owners
-            createdAt
-            updatedAt
-          }
           nextToken
         }
         friends {
-          items {
-            id
-            contactId
-            status
-            owners
-            createdAt
-            updatedAt
-          }
           nextToken
         }
         storage {
-          items {
-            cid
-            name
-            type
-            size
-            createdAt
-            updatedAt
-            userStorageId
-            owner
-          }
           nextToken
         }
         streams {
-          items {
-            id
-            name
-            size
-            status
-            owners
-            createdAt
-            updatedAt
-            userStreamsId
-          }
           nextToken
         }
         createdAt
@@ -431,53 +357,15 @@ export const onUpdateFriendship = /* GraphQL */ `
         nickname
         avatar
         chats {
-          items {
-            id
-            senderId
-            userId
-            unseenMsgs
-            chat
-            owners
-            createdAt
-            updatedAt
-          }
           nextToken
         }
         friends {
-          items {
-            id
-            contactId
-            status
-            owners
-            createdAt
-            updatedAt
-          }
           nextToken
         }
         storage {
-          items {
-            cid
-            name
-            type
-            size
-            createdAt
-            updatedAt
-            userStorageId
-            owner
-          }
           nextToken
         }
         streams {
-          items {
-            id
-            name
-            size
-            status
-            owners
-            createdAt
-            updatedAt
-            userStreamsId
-          }
           nextToken
         }
         createdAt
@@ -507,53 +395,15 @@ export const onDeleteFriendship = /* GraphQL */ `
         nickname
         avatar
         chats {
-          items {
-            id
-            senderId
-            userId
-            unseenMsgs
-            chat
-            owners
-            createdAt
-            updatedAt
-          }
           nextToken
         }
         friends {
-          items {
-            id
-            contactId
-            status
-            owners
-            createdAt
-            updatedAt
-          }
           nextToken
         }
         storage {
-          items {
-            cid
-            name
-            type
-            size
-            createdAt
-            updatedAt
-            userStorageId
-            owner
-          }
           nextToken
         }
         streams {
-          items {
-            id
-            name
-            size
-            status
-            owners
-            createdAt
-            updatedAt
-            userStreamsId
-          }
           nextToken
         }
         createdAt

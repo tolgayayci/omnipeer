@@ -84,18 +84,6 @@ export const createUser = /* GraphQL */ `
         items {
           id
           contactId
-          contact {
-            owner
-            email
-            peerId
-            fullName
-            about
-            role
-            nickname
-            avatar
-            createdAt
-            updatedAt
-          }
           status
           owners
           createdAt
@@ -165,18 +153,6 @@ export const updateUser = /* GraphQL */ `
         items {
           id
           contactId
-          contact {
-            owner
-            email
-            peerId
-            fullName
-            about
-            role
-            nickname
-            avatar
-            createdAt
-            updatedAt
-          }
           status
           owners
           createdAt
@@ -246,18 +222,6 @@ export const deleteUser = /* GraphQL */ `
         items {
           id
           contactId
-          contact {
-            owner
-            email
-            peerId
-            fullName
-            about
-            role
-            nickname
-            avatar
-            createdAt
-            updatedAt
-          }
           status
           owners
           createdAt
@@ -365,53 +329,15 @@ export const createFriendship = /* GraphQL */ `
         nickname
         avatar
         chats {
-          items {
-            id
-            senderId
-            userId
-            unseenMsgs
-            chat
-            owners
-            createdAt
-            updatedAt
-          }
           nextToken
         }
         friends {
-          items {
-            id
-            contactId
-            status
-            owners
-            createdAt
-            updatedAt
-          }
           nextToken
         }
         storage {
-          items {
-            cid
-            name
-            type
-            size
-            createdAt
-            updatedAt
-            userStorageId
-            owner
-          }
           nextToken
         }
         streams {
-          items {
-            id
-            name
-            size
-            status
-            owners
-            createdAt
-            updatedAt
-            userStreamsId
-          }
           nextToken
         }
         createdAt
@@ -442,53 +368,15 @@ export const updateFriendship = /* GraphQL */ `
         nickname
         avatar
         chats {
-          items {
-            id
-            senderId
-            userId
-            unseenMsgs
-            chat
-            owners
-            createdAt
-            updatedAt
-          }
           nextToken
         }
         friends {
-          items {
-            id
-            contactId
-            status
-            owners
-            createdAt
-            updatedAt
-          }
           nextToken
         }
         storage {
-          items {
-            cid
-            name
-            type
-            size
-            createdAt
-            updatedAt
-            userStorageId
-            owner
-          }
           nextToken
         }
         streams {
-          items {
-            id
-            name
-            size
-            status
-            owners
-            createdAt
-            updatedAt
-            userStreamsId
-          }
           nextToken
         }
         createdAt
@@ -519,53 +407,15 @@ export const deleteFriendship = /* GraphQL */ `
         nickname
         avatar
         chats {
-          items {
-            id
-            senderId
-            userId
-            unseenMsgs
-            chat
-            owners
-            createdAt
-            updatedAt
-          }
           nextToken
         }
         friends {
-          items {
-            id
-            contactId
-            status
-            owners
-            createdAt
-            updatedAt
-          }
           nextToken
         }
         storage {
-          items {
-            cid
-            name
-            type
-            size
-            createdAt
-            updatedAt
-            userStorageId
-            owner
-          }
           nextToken
         }
         streams {
-          items {
-            id
-            name
-            size
-            status
-            owners
-            createdAt
-            updatedAt
-            userStreamsId
-          }
           nextToken
         }
         createdAt

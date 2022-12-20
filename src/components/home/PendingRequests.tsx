@@ -37,6 +37,8 @@ import {
   UpdateFriendshipMutation,
 } from "../../API";
 
+import toast from "react-hot-toast";
+
 interface TableBodyRowType {
   id: string;
   owner: string;
@@ -69,65 +71,6 @@ const statusObj: StatusObj = {
   inactive: { color: "secondary" },
 };
 
-const handleAccept = async (owner: string) => {
-  const user = await Auth.currentAuthenticatedUser();
-
-  const checkPendings = await API.graphql(
-    graphqlOperation(listFriendships, {
-      filter: {
-        and: [
-          { contactId: { eq: user.attributes.sub } },
-          { status: { eq: FriendshipStatus.PENDING } },
-          { owners: { contains: owner } },
-        ],
-      },
-    })
-  );
-
-  const updateInput: UpdateFriendshipInput = {
-    id: checkPendings.data.listFriendships.items[0].id,
-    status: FriendshipStatus.ACCEPTED,
-  };
-
-  // contact: User! @belongsTo(fields: ["contactId"])
-
-  console.log(updateInput);
-
-  await API.graphql(graphqlOperation(updateFriendship, { input: updateInput }))
-    .then(
-      //@ts-ignore
-      async (result) => {
-        console.log(result);
-
-        const newFriendship: CreateFriendshipInput = {
-          contactId: owner,
-          status: FriendshipStatus.ACCEPTED,
-          owners: [user.attributes.sub, owner],
-        };
-
-        console.log(newFriendship);
-
-        await API.graphql(
-          graphqlOperation(createFriendship, { input: newFriendship })
-        )//@ts-ignore
-          .then((res) => {
-              console.log("friendship request accepted");
-              console.log(res);
-            }
-          )//@ts-ignore
-          .catch((err) => {
-            console.log(err);
-          });
-      }
-    )
-    .catch(
-      //@ts-ignore
-      (error) => {
-        console.log(error);
-      }
-    );
-};
-
 const renderUserAvatar = (row: User) => {
   if (row.avatar) {
     return (
@@ -145,72 +88,147 @@ const renderUserAvatar = (row: User) => {
   }
 };
 
-const columns: GridColDef[] = [
-  {
-    flex: 0.25,
-    field: "name",
-    minWidth: 200,
-    headerName: "User",
-    renderCell: ({ row }: CellType) => {
-      return (
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          {
-            // @ts-ignore
-            renderUserAvatar(row)
-          }
-          <Box sx={{ display: "flex", flexDirection: "column" }}>
-            <Typography variant="subtitle2" sx={{ color: "text.primary" }}>
-              {row.fullName}
-            </Typography>
-            <Typography variant="caption" sx={{ lineHeight: 1.6667 }}>
-              {row.nickname}
-            </Typography>
-          </Box>
-        </Box>
-      );
-    },
-  },
-  {
-    flex: 0.3,
-    minWidth: 250,
-    field: "email",
-    headerName: "Email",
-    renderCell: ({ row }: CellType) => (
-      <Typography variant="body2">{row.email}</Typography>
-    ),
-  },
-  {
-    flex: 0.15,
-    minWidth: 110,
-    field: "decision",
-    headerName: "Reply The Request",
-    renderCell: ({ row }: CellType) => (
-      <div>
-        <Button
-          size="small"
-          variant="contained"
-          color="primary"
-          onClick={() => handleAccept(row.owner)}
-        >
-          Accept
-        </Button>
-        <Button
-          size="small"
-          variant="contained"
-          color="primary"
-          onClick={() => console.log("rejected")}
-          sx={{ ml: 5 }}
-        >
-          Reject
-        </Button>
-      </div>
-    ),
-  },
-];
 
 const PendingRequests = () => {
   const [userArray, setUserArray] = useState<object[]>([]);
   const [isPending, setIsPending] = useState<boolean>(false);
+
+  const columns: GridColDef[] = [
+    {
+      flex: 0.25,
+      field: "name",
+      minWidth: 200,
+      headerName: "User",
+      renderCell: ({ row }: CellType) => {
+        return (
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            {
+              // @ts-ignore
+              renderUserAvatar(row)
+            }
+            <Box sx={{ display: "flex", flexDirection: "column" }}>
+              <Typography variant="subtitle2" sx={{ color: "text.primary" }}>
+                {row.fullName}
+              </Typography>
+              <Typography variant="caption" sx={{ lineHeight: 1.6667 }}>
+                {row.nickname}
+              </Typography>
+            </Box>
+          </Box>
+        );
+      },
+    },
+    {
+      flex: 0.3,
+      minWidth: 250,
+      field: "email",
+      headerName: "Email",
+      renderCell: ({ row }: CellType) => (
+        <Typography variant="body2">{row.email}</Typography>
+      ),
+    },
+    {
+      flex: 0.15,
+      minWidth: 110,
+      field: "decision",
+      headerName: "Reply The Request",
+      renderCell: ({ row }: CellType) => (
+        <div>
+          <Button
+            size="small"
+            variant="contained"
+            color="primary"
+            onClick={() => handleAccept(row.owner)}
+          >
+            Accept
+          </Button>
+          <Button
+            size="small"
+            variant="contained"
+            color="primary"
+            onClick={() => console.log("rejected")}
+            sx={{ ml: 5 }}
+          >
+            Reject
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
+  const handleAccept = async (owner: string) => {
+    const user = await Auth.currentAuthenticatedUser();
+  
+    const checkPendings = await API.graphql(
+      graphqlOperation(listFriendships, {
+        filter: {
+          and: [
+            { contactId: { eq: user.attributes.sub } },
+            { status: { eq: FriendshipStatus.PENDING } },
+            { owners: { contains: owner } },
+          ],
+        },
+      })
+    );
+  
+    const updateInput: UpdateFriendshipInput = {
+      id: checkPendings.data.listFriendships.items[0].id,
+      status: FriendshipStatus.ACCEPTED,
+    };
+  
+    // contact: User! @belongsTo(fields: ["contactId"])
+  
+    console.log(updateInput);
+  
+    await API.graphql(graphqlOperation(updateFriendship, { input: updateInput }))
+      .then(
+        //@ts-ignore
+        async (result) => {
+          console.log(result);
+  
+          const newFriendship: CreateFriendshipInput = {
+            contactId: owner,
+            status: FriendshipStatus.ACCEPTED,
+            owners: [user.attributes.sub, owner],
+          };
+  
+          console.log(newFriendship);
+  
+          await API.graphql(
+            graphqlOperation(createFriendship, { input: newFriendship })
+          )//@ts-ignore
+            .then((res) => {
+              toast.success("Your accepted the request!!", {
+                position: "top-right",
+                style: {
+                  border: "1px solid #713200",
+                  padding: "16px",
+                  color: "#713200",
+                  background: "#ffffff",
+                },
+                iconTheme: {
+                  primary: "#713200",
+                  secondary: "#FFFAEE",
+                },
+              });
+
+              setIsPending(false);
+              handlePendingRequests();
+  
+              }
+            )//@ts-ignore
+            .catch((err) => {
+              console.log(err);
+            });
+        }
+      )
+      .catch(
+        //@ts-ignore
+        (error) => {
+          console.log(error);
+        }
+      );
+  };
 
   const handlePendingRequests = async () => {
     const user = await Auth.currentAuthenticatedUser();
@@ -229,6 +247,8 @@ const PendingRequests = () => {
 
     if (checkPendings.data.listFriendships.items.length > 0) {
       const userCheckArray: Array<{}> = [];
+
+      setIsPending(true);
 
       //@ts-ignore
       checkPendings.data.listFriendships.items.map(async (item) => {
@@ -253,8 +273,9 @@ const PendingRequests = () => {
   }, []);
 
   return (
-    
-    <Card>
+    <>
+    {isPending ? (
+      <Card>
       <CardHeader title="Friend Requests" />
       <DataGrid
         autoHeight
@@ -265,8 +286,11 @@ const PendingRequests = () => {
         disableSelectionOnClick
         pagination={undefined}
       />
-    </Card>
-    
+      </Card>
+    ) : (
+      null
+    ) }
+    </>
   );
 };
 

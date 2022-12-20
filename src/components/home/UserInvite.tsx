@@ -56,7 +56,7 @@ const UserInvite = () => {
               You have connected{" "}
               <Box component="span" sx={{ fontWeight: 600, color: "#ffffff" }}>
                 {// @ts-ignore
-                user.friends?.items.length / 2}
+                user.friends?.items.length}
               </Box>{" "}
                people from your network.
             </Typography>

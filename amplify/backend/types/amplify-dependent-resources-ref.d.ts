@@ -1,13 +1,12 @@
 export type AmplifyDependentResourcesAttributes = {
     "api": {
         "omnipeer": {
-            "GraphQLAPIKeyOutput": "string",
             "GraphQLAPIIdOutput": "string",
             "GraphQLAPIEndpointOutput": "string"
         }
     },
     "auth": {
-        "omnipeer53799b07": {
+        "omnipeer5dfb166f": {
             "IdentityPoolId": "string",
             "IdentityPoolName": "string",
             "UserPoolId": "string",
