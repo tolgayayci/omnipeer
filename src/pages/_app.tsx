@@ -1,6 +1,7 @@
 // ** Next Imports
 import Head from "next/head";
-import { Router } from "next/router";
+import { Router, useRouter } from "next/router";
+import Link from "next/link";
 import type { NextPage } from "next";
 import type { AppProps } from "next/app";
 
@@ -64,7 +65,6 @@ import { setFileDetails } from "src/store/apps/node";
 // ** Libp2p Imports
 import { pipe } from "it-pipe";
 import { toString as uint8ArrayToString } from "uint8arrays/to-string";
-import { fromString as uint8ArrayFromString } from "uint8arrays/from-string";
 
 import TransferRequest from "src/components/transfer/TransferRequest";
 import TransferProgress from "src/components/transfer/TransferProgress";
@@ -74,12 +74,12 @@ import { setIsAccepted } from "src/store/apps/node";
 import type PeerId from "peer-id";
 
 // ** Amplify Imports
-import { API, Auth, graphqlOperation } from "aws-amplify";
-import { listStreams } from "src/graphql/queries";
+import { API, Auth, Hub, graphqlOperation } from "aws-amplify";
 import { createStream, updateStream } from "src/graphql/mutations";
 import { UpdateStreamInput, StreamStatus } from "src/API";
 
-import { withAuthenticator } from "@aws-amplify/ui-react";
+import LoginV1 from "src/pages/login"
+import BlankLayout from "src/@core/layouts/BlankLayout";
 
 Amplify.configure(awsExports);
 
@@ -104,7 +104,6 @@ if (themeConfig.routingLoader) {
   });
 }
 
-
 // ** Configure JSS & ClassName
 const App = (props: ExtendedAppProps) => {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
@@ -116,10 +115,44 @@ const App = (props: ExtendedAppProps) => {
   const [peerId, setPeerId] = useState<PeerId>();
   const chunkSize = useRef(0);
   const [value, setValue] = useState<number>(0);
+  const [user, setUser] = useState<boolean>(false);
+
+  const router = useRouter();
+
+  Hub.listen('auth', (data) => {
+    const event = data.payload.event;
+    console.log('event:', event);
+    if (event === "signOut") {
+      console.log('user signed out...');
+      window.location.reload();
+    } else if (event === "signIn") {
+      console.log('user signed in...');
+      window.location.reload();
+    }
+  });
+
+  const checkUser = async () => {
+    try {
+      await Auth.currentAuthenticatedUser();
+      setIsLoading(false);
+      setUser(true);
+      router.push("/")
+    } catch (error) {
+      console.log(error);
+      setIsLoading(false);
+      setUser(false);
+      router.push("/login");
+    }
+  };
   
   // Variables
   const getLayout = Component.getLayout ?? (
-    (page) => <UserLayout>{page}</UserLayout>
+    user ? (
+      (page) => <UserLayout>{page}</UserLayout>
+    ) : (
+      //@ts-ignore
+      () => {<BlankLayout><LoginV1/></BlankLayout>}
+    )
   );
 
   const setConfig = Component.setConfig ?? undefined;
@@ -152,7 +185,9 @@ const App = (props: ExtendedAppProps) => {
 
   useEffect(() => {
 
-    if(true) {
+    console.log(user)
+
+    if(user) {
       store
       .dispatch(createNode())
       .then(() => {
@@ -363,7 +398,11 @@ const App = (props: ExtendedAppProps) => {
         console.log(err);
       });
     }
-  }, []);
+  }, [user]);
+
+  useEffect(() => {
+    checkUser()
+  }, [isLoading]);
 
   return (
     <Provider store={store}>
@@ -393,6 +432,7 @@ const App = (props: ExtendedAppProps) => {
                 return (
                   <ThemeComponent settings={settings}>
                     <WindowWrapper>
+                      <>
                       {getLayout(<Component {...pageProps} />)}
                       <TransferRequest
                         open={isTransferRequest}
@@ -405,6 +445,7 @@ const App = (props: ExtendedAppProps) => {
                         setOpen={setIsTransferRequestApproved}
                         chunkSize={chunkSize}
                       />
+                      </>
                     </WindowWrapper>
                     <ReactHotToast>
                       <Toaster
@@ -423,4 +464,4 @@ const App = (props: ExtendedAppProps) => {
   );
 };
 
-export default withAuthenticator(App);
+export default App;

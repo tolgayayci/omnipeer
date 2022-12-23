@@ -13,7 +13,8 @@ interface FooterIllustrationsProp {
 const MaskImg = styled("img")(({ theme }) => ({
   zIndex: -1,
   bottom: "7%",
-  width: "100%",
+  height: "50%",
+  width: "auto",
   position: "absolute",
   [theme.breakpoints.down("lg")]: {
     bottom: "17.5%",
@@ -30,8 +31,7 @@ const FooterIllustrationsV2 = (props: FooterIllustrationsProp) => {
   // ** Vars
   const hidden = useMediaQuery(theme.breakpoints.down("md"));
 
-  const src =
-    image || `/images/pages/auth-v2-login-mask-${theme.palette.mode}.png`;
+  const src = "../images/pages/auth-v2-forgot-password-mask-dark.png";
 
   if (!hidden) {
     return (

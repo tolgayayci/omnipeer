@@ -58,7 +58,7 @@ export const updateUserInfo = createAsyncThunk(
   }
 );
 
-const initialState: User = {
+const initialState : User = {
   __typename: "User",
   owner: "",
   email: "",

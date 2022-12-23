@@ -56,7 +56,7 @@ export const createNode = createAsyncThunk("node/createNode", async () => {
     connectionManager: {
       maxParallelDials: 150, // 150 total parallel multiaddr dials
       maxDialsPerPeer: 4, // Allow 4 multiaddrs to be dialed per peer in parallel
-      dialTimeout: 10e3, // 10 second dial timeout per peer dial
+      dialTimeout: 15e3, // 10 second dial timeout per peer dial
       autoDial: true,
     },
     metrics: {

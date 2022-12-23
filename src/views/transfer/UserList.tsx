@@ -123,13 +123,16 @@ const ListUsers = (props: ListUsersProps) => {
   };
 
   const forceConnect = async (peerId: string) => {
+
+    console.log(peerId)
     let remotePeerId = node.remotePeerIds?.find(
       (remotePeerId) => remotePeerId.toString() === peerId
     );
 
+    console.log(remotePeerId)
+
     if (remotePeerId) {
-      node.node?.connectionManager
-        .openConnection(remotePeerId)
+      node.node?.dial(remotePeerId)
         .then((connection) => {
           console.log(connection);
           return true;
@@ -139,6 +142,9 @@ const ListUsers = (props: ListUsersProps) => {
           console.log(err);
           return false;
         });
+    }else{
+      //Error Message
+      console.log("No remote peer id")
     }
 
     //Error Message
