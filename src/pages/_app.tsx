@@ -80,6 +80,7 @@ import { UpdateStreamInput, StreamStatus } from "src/API";
 
 import LoginV1 from "src/pages/login"
 import BlankLayout from "src/@core/layouts/BlankLayout";
+import FallbackSpinner from 'src/@core/components/spinner'
 
 Amplify.configure(awsExports);
 
@@ -407,9 +408,7 @@ const App = (props: ExtendedAppProps) => {
   return (
     <Provider store={store}>
       {isLoading ? (
-        <div>
-          <h1>Loading...</h1>
-        </div>
+        <FallbackSpinner />
       ) : (
         <CacheProvider value={emotionCache}>
           <Head>
